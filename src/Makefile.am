@@ -8,7 +8,7 @@
 
 
 # Defining libraries to be built and their installation destination
-plugindir = $(libdir)/xfce4/panel/plugins
+plugindir = $(libdir)/xfce4/panel-plugins
 plugin_LTLIBRARIES = libdocklike.la
 
 # List of source files needed to build the library
@@ -24,6 +24,8 @@ libdocklike_la_SOURCES = \
 						Plugin.cpp Plugin.hpp \
 						Dock.cpp Dock.hpp \
 						Wnck.cpp Wnck.hpp \
+						Settings.cpp Settings.hpp \
+						PluginContext.cpp PluginContext.hpp \
 						register.c
 
 libdocklike_la_LDFLAGS = \

@@ -14,6 +14,7 @@
 #include "Theme.hpp"
 #include "Config.hpp"
 #include "AppInfos.hpp"
+#include "Settings.hpp"
 
 extern "C"
 {
@@ -22,12 +23,14 @@ extern "C"
 }
 
 #include "Dock.hpp"
+#include "PluginContext.hpp"
 
 namespace Plugin
 {
 	extern XfcePanelPlugin* mXfPlugin;
 	extern Config* mConfig;
 	extern GdkDevice* mPointer;
+	extern PluginContext* mContext;
 
 	void getPointerPosition(gint* x, gint* y);
 }
