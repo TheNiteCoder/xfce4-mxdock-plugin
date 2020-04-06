@@ -40,5 +40,4 @@ namespace Wnck
 		extern Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
 }
 
-
 #endif

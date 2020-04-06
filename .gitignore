@@ -2,6 +2,7 @@
 obj/**
 libdocklike.so
 Makefile
+Makefile*user
 COPYING
 INSTALL
 aclocal.m4

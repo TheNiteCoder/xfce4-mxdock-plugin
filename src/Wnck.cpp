@@ -42,24 +42,21 @@ namespace Wnck
 					return;
 				}
 			}*/
-		}
+        }
 
 		bool windowInCurrentWorkspace(WnckWindow* window)
 		{
 			WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
-			if(currentWorkspace == NULL) std::cerr << "currentWorkspace == NULL";
+            if(currentWorkspace == NULL) return true;
 			WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
-			if(windowWorkspace == NULL) std::cerr << "windowWorkspace == NULL";
-			std::cerr << "currentWorkspace getting number" << std::endl;
+            if(windowWorkspace == NULL) return true;
 			int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
-			std::cerr << "windowWorkspace getting number" << std::endl;
 			int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
 			return windowWorkspaceNumber == currentWorkspaceNumber;
 		}
 
 		void removeWindowsInOtherWorkspaces()
 		{
-			std::cerr << "removeWindowsInOtherWorkspaces" << std::endl;
 			mGroupWindows.underlying().remove_if([=](std::pair<const gulong, GroupWindow*> pair) {
 				return !windowInCurrentWorkspace(pair.second->mWnckWindow);
 			});
