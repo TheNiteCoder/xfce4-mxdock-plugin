@@ -40,9 +40,13 @@
 
 			WnckWindow* mWnckWindow;
 			GroupMenuItem mGroupMenuItem;
+			bool mVisible;
 
 			void updateState(unsigned short state, unsigned short changeMask = USHRT_MAX);
 			unsigned short mState;
+
+			gulong mScreenWorkspaceChangedID;
+			WnckScreen* mScreen;
 	};
 
 #endif

@@ -8,9 +8,22 @@
 
 namespace Wnck
 {
+	
+	WindowInfo::WindowInfo(WnckWindow* wnckWindow)
+	{
+		mGroupWindow = new GroupWindow(wnckWindow);
+		mXID = wnck_window_get_xid(wnckWindow);
+		mVisible = true;
+	}
+
+	WindowInfo::~WindowInfo()
+	{
+		delete mGroupWindow;
+	}
+
 	WnckScreen* mWnckScreen;
-	PluginContext* mContext;
-	Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
+	// Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
+	std::list<WindowInfo*> mWindows;
 
 	namespace //private:
 	{
@@ -44,22 +57,8 @@ namespace Wnck
 			}*/
         }
 
-		bool windowInCurrentWorkspace(WnckWindow* window)
-		{
-			WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
-            if(currentWorkspace == NULL) return true;
-			WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
-            if(windowWorkspace == NULL) return true;
-			int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
-			int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
-			return windowWorkspaceNumber == currentWorkspaceNumber;
-		}
-
 		void removeWindowsInOtherWorkspaces()
 		{
-			mGroupWindows.underlying().remove_if([=](std::pair<const gulong, GroupWindow*> pair) {
-				return !windowInCurrentWorkspace(pair.second->mWnckWindow);
-			});
 		}
 
 		std::string getGroupNameSys(WnckWindow* wnckWindow)
@@ -100,9 +99,8 @@ namespace Wnck
 
 	//public:
 
-	void init(PluginContext* context)
+	void init()
 	{
-		mContext = context;
 		mWnckScreen = wnck_screen_get_default();
 		wnck_screen_force_update(mWnckScreen);
 
@@ -110,7 +108,7 @@ namespace Wnck
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-opened",
 		G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
 		{
-			mGroupWindows.pushSecond(wnck_window_get_xid(wnckWindow), new GroupWindow(wnckWindow));
+			mWindows.push_back(new WindowInfo(wnckWindow));
 			//if(mContext->config->getShowOnlyWindowsInCurrentWorkspace())
 				//removeWindowsInOtherWorkspaces();
 		}), NULL);
@@ -118,8 +116,12 @@ namespace Wnck
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-closed",
 		G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
 		{
-			GroupWindow* groupWindow = mGroupWindows.pop(wnck_window_get_xid(wnckWindow));
-			if(groupWindow != NULL) delete groupWindow;
+			auto positer = std::find_if(mWindows.begin(), mWindows.end(), [=](WindowInfo* wi) {
+				return wi->mXID == wnck_window_get_xid(wnckWindow);
+			});
+			if(positer == mWindows.end()) return;
+			WindowInfo* ptr = *positer;
+			delete ptr;
 		}), NULL);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "active-window-changed",
@@ -132,9 +134,9 @@ namespace Wnck
 		for (GList* window_l = wnck_screen_get_windows(mWnckScreen); window_l != NULL; window_l = window_l->next)
 		{
 			WnckWindow* wnckWindow = WNCK_WINDOW(window_l->data);
-			mGroupWindows.push(wnck_window_get_xid(wnckWindow), new GroupWindow(wnckWindow));
+			mWindows.push_back(new WindowInfo(wnckWindow));
 		}
-		if(mContext->config->getShowOnlyWindowsInCurrentWorkspace())
+		if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
 			//removeWindowsInOtherWorkspaces();
 		setActiveWindow();
 	}
@@ -184,10 +186,30 @@ namespace Wnck
 		gulong activeXID = getActiveWindowXID();
 		if(activeXID != NULL)
 		{
-			mGroupWindows.first()->onUnactivate();
-			mGroupWindows.moveToStart(activeXID)->onActivate();
+			WindowInfo* info = *mWindows.begin();
+			info->mGroupWindow->onUnactivate();
+			auto iter = std::find_if(mWindows.begin(), mWindows.end(), [&activeXID](WindowInfo* wi){
+				return wi->mXID == activeXID;
+			});
+			if(iter == mWindows.end()) return;
+			WindowInfo* ptr = *iter;
+
+			//mGroupWindows.first()->onUnactivate();
+			//mGroupWindows.moveToStart(activeXID)->onActivate();
 		}
 	}
+
+	bool windowInCurrentWorkspace(WnckWindow* window)
+	{
+		WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
+	    if(currentWorkspace == NULL) return true;
+		WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
+	    if(windowWorkspace == NULL) return true;
+		int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
+		int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
+		return windowWorkspaceNumber == currentWorkspaceNumber;
+	}
+
 
 	std::string getGroupName(GroupWindow* groupWindow)
 	{

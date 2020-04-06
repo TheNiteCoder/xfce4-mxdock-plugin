@@ -11,13 +11,25 @@
 #include "GroupWindow.hpp"
 #include "Store.tpp"
 #include "Helpers.hpp"
-#include "PluginContext.hpp"
+#include "Plugin.hpp"
 
 class GroupWindow;
 
 namespace Wnck
 {
-		void init(PluginContext* context);
+		void init();
+
+		class WindowInfo
+		{
+		public:
+			WindowInfo(WnckWindow* wnckWindow);
+			~WindowInfo();
+
+			gulong mXID;
+			GroupWindow* mGroupWindow;
+			bool mVisible;
+
+		};
 
 		gulong getActiveWindowXID();
 
@@ -34,10 +46,11 @@ namespace Wnck
 		void minimize(GroupWindow* groupWindow);
 
 		void setActiveWindow();
+	
+		bool windowInCurrentWorkspace(WnckWindow* window);
 
 		extern WnckScreen* mWnckScreen;
-		extern PluginContext* mContext;
-		extern Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
+		extern std::list<WindowInfo*> mWindows;
 }
 
 #endif

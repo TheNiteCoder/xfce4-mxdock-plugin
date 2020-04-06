@@ -7,6 +7,8 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow):
 { 
 	mWnckWindow = wnckWindow;
 
+	mVisible = Wnck::windowInCurrentWorkspace(mWnckWindow);
+
 	std::string groupName = Wnck::getGroupName(this); //check here for exotic group association (like libreoffice)
 	AppInfo* appInfo = AppInfos::search(groupName);
 
@@ -31,6 +33,26 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow):
 		me->updateState(new_state, changed_mask);
 	}), this);
 
+	g_signal_connect(G_OBJECT(mWnckWindow), "workspace-changed",
+	G_CALLBACK(+[](WnckWindow* window, GroupWindow* me)
+	{
+		std::cerr << "Window changed workspace" << std::endl;
+		me->mGroup->mWindowsCount.updateState();
+	}), this);
+
+	mScreen = wnck_window_get_screen(mWnckWindow);
+	mScreenWorkspaceChangedID = g_signal_connect(G_OBJECT(mScreen), "active-workspace-changed",
+	G_CALLBACK(+[](WnckScreen* screen, WnckWorkspace* prevWorkspace, GroupWindow* me)
+	{
+		std::cerr << "Changed workspace" << std::endl;
+		me->mGroup->mWindowsCount.updateState();
+	}), this);
+
+	// g_signal_connect(G_OBJECT(mWnckWindow), "workspace-changed", 
+	// G_CALLBACK(+[](WnckWindow* window, GroupWindow* me){
+		// me->mVisible = windowInCurrentWorkspace(window);
+	// }), this);
+// 
 	//initial state
 	updateState(Wnck::getState(this));
 
@@ -40,6 +62,7 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow):
 
 GroupWindow::~GroupWindow()
 {
+	g_signal_handler_disconnect(mScreen, mScreenWorkspaceChangedID);
 	leaveGroup(mGroup);
 }
 

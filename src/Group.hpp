@@ -10,6 +10,7 @@
 #include "GroupWindow.hpp"
 #include "GroupMenu.hpp"
 #include "State.tpp"
+#include "Plugin.hpp"
 
 class GroupWindow;
 

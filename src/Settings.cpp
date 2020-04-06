@@ -6,24 +6,23 @@
 namespace Settings
 {
 
-void handler(GtkWidget* dialog, gint response, PluginContext* context)
+void handler(GtkWidget* dialog, gint response)
 {
-	g_object_set_data(G_OBJECT(context->plugin), "dialog", NULL);
+	g_object_set_data(G_OBJECT(Plugin::mXfPlugin), "dialog", NULL);
 
-	xfce_panel_plugin_unblock_menu(context->plugin);
-
-	context->config->save();
+	xfce_panel_plugin_unblock_menu(Plugin::mXfPlugin);
+	
+	Plugin::mConfig->save();
 
 	gtk_widget_destroy(dialog);
 }
 
-void toggle_of_show_only_workspace_windows(GtkToggleButton* toggleButton, PluginContext* context)
+void toggle_of_show_only_workspace_windows(GtkToggleButton* toggleButton)
 {
-	std::cerr << "Toggle button active: " << gtk_toggle_button_get_active(toggleButton) << std::endl;
-	context->config->setShowOnlyWindowsInCurrentWorkspace(gtk_toggle_button_get_active(toggleButton));
+	Plugin::mConfig->setShowOnlyWindowsInCurrentWorkspace(gtk_toggle_button_get_active(toggleButton));
 }
 
-void launch(XfcePanelPlugin* plugin, PluginContext* context)
+void launch(XfcePanelPlugin* plugin)
 {
 	GtkWidget* dialog;
 
@@ -38,12 +37,12 @@ void launch(XfcePanelPlugin* plugin, PluginContext* context)
 
 	GtkWidget* showOnlyWorkspaceWindowsCheckbox = gtk_check_button_new_with_label("Show only windows from current workspace");
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(showOnlyWorkspaceWindowsCheckbox), context->config->getShowOnlyWindowsInCurrentWorkspace());
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(showOnlyWorkspaceWindowsCheckbox), Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace());
 
 	GtkBox* contents = GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 	gtk_box_pack_start(contents, GTK_WIDGET(showOnlyWorkspaceWindowsCheckbox), true, true, 0);
 
-	g_signal_connect(G_OBJECT(showOnlyWorkspaceWindowsCheckbox), "toggled", G_CALLBACK(toggle_of_show_only_workspace_windows), context);
+	g_signal_connect(G_OBJECT(showOnlyWorkspaceWindowsCheckbox), "toggled", G_CALLBACK(toggle_of_show_only_workspace_windows), NULL);
 
 	gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
 
@@ -51,7 +50,7 @@ void launch(XfcePanelPlugin* plugin, PluginContext* context)
 
 	g_object_set_data(G_OBJECT(plugin), "dialog", dialog);
 
-	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handler), context);
+	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handler), NULL);
 
 	gtk_widget_show_all(dialog);
 

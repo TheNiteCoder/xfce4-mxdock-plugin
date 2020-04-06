@@ -8,15 +8,12 @@ namespace Plugin
 	XfcePanelPlugin* mXfPlugin;
 	Config* mConfig;
 	GdkDevice* mPointer;
-	PluginContext* mContext;
 
 	void init(XfcePanelPlugin* xfPlugin)
 	{
 		mXfPlugin = xfPlugin;
 
 		mConfig = new Config(xfce_panel_plugin_save_location(mXfPlugin, true));
-
-		mContext = plugin_context_new(mXfPlugin, mConfig);
 
 		GdkDisplay* display = gdk_display_get_default();
 		GdkDeviceManager* deviceManager = gdk_display_get_device_manager(display);
@@ -27,7 +24,7 @@ namespace Plugin
 		Theme::init(gtk_widget_get_parent(GTK_WIDGET(mXfPlugin)));
 
 		Dock::init();
-		Wnck::init(mContext);
+		Wnck::init();
 
 		//--------------------------------------------------
 
@@ -50,9 +47,9 @@ namespace Plugin
 
 		xfce_panel_plugin_menu_show_configure(mXfPlugin);
 		g_signal_connect(G_OBJECT(mXfPlugin), "configure-plugin",
-				G_CALLBACK(+[](XfcePanelPlugin* plugin, PluginContext* context){
-					Settings::launch(plugin, context);
-					}), mContext);
+		G_CALLBACK(+[](XfcePanelPlugin* plugin){
+			Settings::launch(plugin);
+		}), NULL);
 	}
 
 	void getPointerPosition(gint* x, gint* y)

@@ -27,7 +27,17 @@ Group::Group(AppInfo* appInfo, bool pinned):
 			{
 				if(!e->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST))
 				{
-					++count;
+					if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
+					{
+						if(Wnck::windowInCurrentWorkspace(e->mWnckWindow))
+						{
+							++count;
+						}
+					}
+					else
+					{
+						++count;
+					}
 					if(count == 2) return true;
 				}
 				return false;
@@ -36,6 +46,11 @@ Group::Group(AppInfo* appInfo, bool pinned):
 		},
 		[this](uint windowsCount)->void {
 			updateStyle();
+			std::cerr << "Window Count: " << windowsCount << std::endl;
+			if(windowsCount < 1 && !mPinned)
+			{
+				gtk_widget_hide(mButton);
+			}
 		}
 	);
 
@@ -128,13 +143,11 @@ Group::Group(AppInfo* appInfo, bool pinned):
 		me->onDraw(cr); return false;
 	}), this);
 
+	// g_signal_connect(G_OBJECT(Wcnk::mWcnkScreen), "active-workspace-changed",
+	// G_CALLBACK(+[]()))
+
 	gtk_drag_source_set(mButton, GDK_BUTTON1_MASK, entries, 1, GDK_ACTION_MOVE);
 	gtk_drag_dest_set(mButton, GTK_DEST_DEFAULT_DROP, entries, 1, GDK_ACTION_MOVE);
-
-
-
-
-
 
 	if(mPinned) gtk_widget_show(mButton);
 
@@ -144,9 +157,6 @@ Group::Group(AppInfo* appInfo, bool pinned):
 
 	gtk_widget_add_events(mButton, GDK_SCROLL_MASK);
 	gtk_button_set_always_show_image(GTK_BUTTON(mButton), true);
-
-
-
 
 	if(mAppInfo != NULL && !mAppInfo->icon.empty())
 	{
@@ -344,11 +354,16 @@ void Group::electNewTopWindow()
 			newTopWindow = mWindows.get(0);
 		else
 		{
-			newTopWindow = Wnck::mGroupWindows.findIf([this](std::pair<gulong, GroupWindow*> e)->bool
-			{
-				if(e.second->mGroup == this) return true;
-				return false;
+			auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
+				return info->mGroupWindow->mGroup == this;
 			});
+			Wnck::WindowInfo* info = *iter;
+			newTopWindow = info->mGroupWindow;
+			//newTopWindow = Wnck::mGroupWindows.findIf([this](std::pair<gulong, GroupWindow*> e)->bool
+			//{
+				//if(e.second->mGroup == this) return true;
+				//return false;
+			//});
 		}
 
 		setTopWindow(newTopWindow);
@@ -440,10 +455,6 @@ void Group::onButtonPress(GdkEventButton* event)
 		{
 			AppInfos::launch(me->mAppInfo);
 		}), this);
-
-
-
-
 
 		g_signal_connect(G_OBJECT(pinToggle), "activate",
 		G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)

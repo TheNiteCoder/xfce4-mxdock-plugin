@@ -5,13 +5,13 @@
 #include <libxfce4panel/libxfce4panel.h>
 #include <libxfce4ui/libxfce4ui.h>
 
-#include "PluginContext.hpp"
+#include "Plugin.hpp"
 
 namespace Settings
 {
 
-void handler(GtkWidget* dialog, gint response, PluginContext* context);
-void launch(XfcePanelPlugin* plugin, PluginContext* context);
+void handler(GtkWidget* dialog, gint response);
+void launch(XfcePanelPlugin* plugin);
 
 }
 
