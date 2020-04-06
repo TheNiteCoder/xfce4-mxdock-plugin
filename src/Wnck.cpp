@@ -2,18 +2,20 @@
 
 #include "Wnck.hpp"
 
+#include <algorithm>
+
 #define RETURN_IF(b) if(b)return;
 
 namespace Wnck
 {
 	WnckScreen* mWnckScreen;
+	PluginContext* mContext;
 	Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
 
 	namespace //private:
 	{
 		std::map<std::string, std::string> mGroupNameRename //ADDIT GroupName aliases
-		= {
-			{"soffice", "libreoffice"},
+		= { {"soffice", "libreoffice"},
 			{"radium_linux.bin", "radium"},
 		}; 
 
@@ -40,6 +42,27 @@ namespace Wnck
 					return;
 				}
 			}*/
+		}
+
+		bool windowInCurrentWorkspace(WnckWindow* window)
+		{
+			WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
+			if(currentWorkspace == NULL) std::cerr << "currentWorkspace == NULL";
+			WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
+			if(windowWorkspace == NULL) std::cerr << "windowWorkspace == NULL";
+			std::cerr << "currentWorkspace getting number" << std::endl;
+			int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
+			std::cerr << "windowWorkspace getting number" << std::endl;
+			int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
+			return windowWorkspaceNumber == currentWorkspaceNumber;
+		}
+
+		void removeWindowsInOtherWorkspaces()
+		{
+			std::cerr << "removeWindowsInOtherWorkspaces" << std::endl;
+			mGroupWindows.underlying().remove_if([=](std::pair<const gulong, GroupWindow*> pair) {
+				return !windowInCurrentWorkspace(pair.second->mWnckWindow);
+			});
 		}
 
 		std::string getGroupNameSys(WnckWindow* wnckWindow)
@@ -80,8 +103,9 @@ namespace Wnck
 
 	//public:
 
-	void init()
+	void init(PluginContext* context)
 	{
+		mContext = context;
 		mWnckScreen = wnck_screen_get_default();
 		wnck_screen_force_update(mWnckScreen);
 
@@ -90,13 +114,15 @@ namespace Wnck
 		G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
 		{
 			mGroupWindows.pushSecond(wnck_window_get_xid(wnckWindow), new GroupWindow(wnckWindow));
+			//if(mContext->config->getShowOnlyWindowsInCurrentWorkspace())
+				//removeWindowsInOtherWorkspaces();
 		}), NULL);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-closed",
 		G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
 		{
 			GroupWindow* groupWindow = mGroupWindows.pop(wnck_window_get_xid(wnckWindow));
-			delete groupWindow;
+			if(groupWindow != NULL) delete groupWindow;
 		}), NULL);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "active-window-changed",
@@ -111,6 +137,8 @@ namespace Wnck
 			WnckWindow* wnckWindow = WNCK_WINDOW(window_l->data);
 			mGroupWindows.push(wnck_window_get_xid(wnckWindow), new GroupWindow(wnckWindow));
 		}
+		if(mContext->config->getShowOnlyWindowsInCurrentWorkspace())
+			//removeWindowsInOtherWorkspaces();
 		setActiveWindow();
 	}
 

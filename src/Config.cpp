@@ -36,3 +36,14 @@ std::list<std::string> Config::getPinned()
 	g_strfreev(clist);
 	return ret;
 }
+
+void Config::setShowOnlyWindowsInCurrentWorkspace(bool value)
+{
+	g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", value);
+}
+
+bool Config::getShowOnlyWindowsInCurrentWorkspace()
+{
+	gboolean gbool = g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", NULL);
+	return (gbool == TRUE) ? true : false;
+}

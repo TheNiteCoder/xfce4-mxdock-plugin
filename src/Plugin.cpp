@@ -27,7 +27,7 @@ namespace Plugin
 		Theme::init(gtk_widget_get_parent(GTK_WIDGET(mXfPlugin)));
 
 		Dock::init();
-		Wnck::init();
+		Wnck::init(mContext);
 
 		//--------------------------------------------------
 

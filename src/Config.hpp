@@ -17,6 +17,9 @@ class Config
 
 		void setPinned(std::list<std::string> pinnedApps);
 		std::list<std::string> getPinned();
+
+		void setShowOnlyWindowsInCurrentWorkspace(bool value);
+		bool getShowOnlyWindowsInCurrentWorkspace();
 	private:
 		GKeyFile* mFile;
 		std::string mPath;

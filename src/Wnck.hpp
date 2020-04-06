@@ -11,12 +11,13 @@
 #include "GroupWindow.hpp"
 #include "Store.tpp"
 #include "Helpers.hpp"
+#include "PluginContext.hpp"
 
 class GroupWindow;
 
 namespace Wnck
 {
-		void init();
+		void init(PluginContext* context);
 
 		gulong getActiveWindowXID();
 
@@ -35,6 +36,7 @@ namespace Wnck
 		void setActiveWindow();
 
 		extern WnckScreen* mWnckScreen;
+		extern PluginContext* mContext;
 		extern Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
 }
 
