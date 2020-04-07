@@ -49,6 +49,8 @@ void GroupMenu::add(GroupMenuItem& menuItem)
 {
 	gtk_box_pack_end(GTK_BOX(mBox), GTK_WIDGET(menuItem.mItem), false, true, 0);
 
+	mItemWindowPairs.push_back({menuItem.mItem, menuItem.mGroupWindow});
+
 	if(mGroup->mSHover)
 	{
 		popup();
@@ -60,6 +62,12 @@ void GroupMenu::remove(GroupMenuItem& menuItem)
 {
 	gtk_container_remove(GTK_CONTAINER(mBox), GTK_WIDGET(menuItem.mItem));
 	gtk_window_resize(GTK_WINDOW(mWindow), 1, 1);
+
+	auto iter = std::find_if(mItemWindowPairs.begin(), mItemWindowPairs.end(), [menuItem](std::pair<GtkEventBox*, GroupWindow*> pair){
+			return pair.first == menuItem.mItem;
+	});
+
+	mItemWindowPairs.erase(iter);
 
 	if(mGroup->mWindowsCount == 0)
 		gtk_widget_hide(mWindow);

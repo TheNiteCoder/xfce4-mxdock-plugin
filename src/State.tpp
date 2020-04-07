@@ -54,6 +54,11 @@ class LogicalState
 			return v;
 		}
 
+		void forceFeedback()
+		{
+			f(v);
+		}
+
 	private:
 		V v;
 		std::function<V()> e;

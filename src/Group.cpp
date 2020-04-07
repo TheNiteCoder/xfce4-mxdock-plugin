@@ -323,6 +323,31 @@ void Group::setMouseLeaveTimeout()
 
 void Group::updateStyle()
 {
+	// Hide menu items
+	if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
+	{
+		for(auto pair : mGroupMenu.mItemWindowPairs)
+		{
+			if(Wnck::windowInCurrentWorkspace(pair.second->mWnckWindow))
+			{
+				std::cerr << "Showing window: " << Wnck::getName(pair.second) << " from group " << Wnck::getGroupName(pair.second) << std::endl;
+				gtk_widget_show(GTK_WIDGET(pair.first));
+			}
+			else
+			{
+				std::cerr << "Hiding window: " << Wnck::getName(pair.second) << " from group " << Wnck::getGroupName(pair.second) << std::endl;
+				gtk_widget_hide(GTK_WIDGET(pair.first));
+			}
+		}
+	}
+	else // ensure all menu items are shown
+	{
+		for(auto pair : mGroupMenu.mItemWindowPairs)
+		{
+			gtk_widget_show(GTK_WIDGET(pair.first));
+		}
+	}
+
 	int wCount = mWindowsCount;
 
 	if(mPinned || wCount)

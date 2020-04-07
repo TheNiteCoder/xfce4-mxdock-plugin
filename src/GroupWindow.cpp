@@ -46,6 +46,7 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow):
 	{
 		std::cerr << "Changed workspace" << std::endl;
 		me->mGroup->mWindowsCount.updateState();
+		me->mGroup->mWindowsCount.forceFeedback();
 	}), this);
 
 	// g_signal_connect(G_OBJECT(mWnckWindow), "workspace-changed", 
