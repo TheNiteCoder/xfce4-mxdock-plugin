@@ -6,7 +6,6 @@
 #
 # 2013, 2016-2018 OmegaPhil (OmegaPhil@startmail.com)
 
-
 # Defining libraries to be built and their installation destination
 plugindir = $(libdir)/xfce4/panel-plugins
 plugin_LTLIBRARIES = libdocklike.la
@@ -53,4 +52,4 @@ libdocklike_la_LIBADD = \
 # default configuration - 4.9.2 is bundled with Debian Jessie (2015),
 # presumably when 2020 comes around I can consider addition of the std
 # flag deprecated
-AM_CXXFLAGS = -DWNCK_I_KNOW_THIS_IS_UNSTABLE $(GTK_CFLAGS) $(CAIRO_CFLAGS) $(WNCK_CFLAGS) $(SENSORS_CFLAGS) --std=c++11
+AM_CXXFLAGS = -DWNCK_I_KNOW_THIS_IS_UNSTABLE $(GTK_CFLAGS) $(CAIRO_CFLAGS) $(WNCK_CFLAGS) $(SENSORS_CFLAGS) --std=c++11 -DPACKAGE_LOCALE_DIR=\"$(localedir)\"

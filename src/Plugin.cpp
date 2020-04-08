@@ -3,6 +3,8 @@
 #include "Plugin.hpp"
 #include "Helpers.hpp"
 
+#include "config.h"
+
 namespace Plugin
 {
 	XfcePanelPlugin* mXfPlugin;
@@ -64,6 +66,6 @@ namespace Plugin
 
 extern "C" void construct(XfcePanelPlugin* xfPlugin)
 {
-	//xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
+	xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 	Plugin::init(xfPlugin);
 }
