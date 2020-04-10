@@ -69,7 +69,7 @@ class Group
 
 		AppInfo* mAppInfo;
 		Store::List<GroupWindow*> mWindows;
-		uint mTopWindowIndex;
+		GroupWindow* mTopWindow;
 
 		void setTopWindow(GroupWindow* groupWindow);
 

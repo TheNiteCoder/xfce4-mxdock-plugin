@@ -11,12 +11,12 @@ Group::Group(AppInfo* appInfo, bool pinned):
 	mButton = gtk_button_new();
 	gtk_style_context_add_class(gtk_widget_get_style_context(mButton), "group");
 	gtk_style_context_add_class(gtk_widget_get_style_context(mButton), "flat");
-	
+
 	mAppInfo = appInfo;
 	mPinned = pinned;
 	mActive = false;
 
-	mTopWindowIndex = 0;
+	mTopWindow = NULL;
 
 	mSFocus = mSOpened = mSMany = mSHover = false;
 
@@ -203,7 +203,7 @@ void Group::remove(GroupWindow* window)
 	mGroupMenu.remove(window->mGroupMenuItem);
 
 	mWindowsCount.updateState();
-	
+
 	electNewTopWindow(); //TODEL
 
 	setStyle(Style::Focus, false);
@@ -246,7 +246,7 @@ void Group::setStyle(Style style, bool val)
 void Group::onDraw(cairo_t* cr)
 {
 	double aBack = 0.0;
-	
+
 	if(mSHover || mSFocus) aBack = 0.5;
 	if(mSHover && mSFocus) aBack = 0.8;
 
@@ -264,7 +264,7 @@ void Group::onDraw(cairo_t* cr)
 			cairo_set_source_rgba(cr, 0.30, 0.65, 0.90, 1);
 		else
 			cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
-		
+
 		cairo_rectangle(cr, 0, h*0.9231, w, h);
 		cairo_fill(cr);
 	}
@@ -294,7 +294,7 @@ void Group::onMouseEnter()
 	mLeaveTimeout.stop();
 
 	Dock::mGroups.forEach([](std::pair<AppInfo*, Group*> g)->void
-	{ 
+	{
 		g.second->mGroupMenu.mGroup->onMouseLeave();
 	});
 
@@ -371,27 +371,32 @@ void Group::updateStyle()
 
 void Group::electNewTopWindow()
 {
-	if(mWindows.size() > 0)
+	if(mWindowsCount > 0)
 	{
 		GroupWindow* newTopWindow;
 
-		if(mWindows.size() == 1)
-			newTopWindow = mWindows.get(0);
+		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
+			if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
+			{
+				return info->mGroupWindow->mGroup == this && Wnck::windowInCurrentWorkspace(info->mGroupWindow->mWnckWindow);
+			}
+			else return info->mGroupWindow->mGroup == this;
+		});
+		
+		if(iter == Wnck::mWindows.end())
+		{
+			newTopWindow = NULL;
+		}
 		else
 		{
-			auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
-				return info->mGroupWindow->mGroup == this;
-			});
 			Wnck::WindowInfo* info = *iter;
 			newTopWindow = info->mGroupWindow;
-			//newTopWindow = Wnck::mGroupWindows.findIf([this](std::pair<gulong, GroupWindow*> e)->bool
-			//{
-				//if(e.second->mGroup == this) return true;
-				//return false;
-			//});
 		}
-
 		setTopWindow(newTopWindow);
+	}
+	else
+	{
+		setTopWindow(NULL);
 	}
 }
 
@@ -411,13 +416,13 @@ void Group::onWindowUnactivate()
 
 void Group::setTopWindow(GroupWindow* groupWindow)
 {
-	mTopWindowIndex = mWindows.getIndex(groupWindow);
+	mTopWindow = groupWindow;
 }
 
 void Group::onButtonPress(GdkEventButton* event)
 {
 	std::cout << "PRESS MENU HERE:" << 1 << std::endl;
-	
+
 	if(event->button != 3) return;
 
 	if(mWindowsCount == 0)
@@ -426,7 +431,7 @@ void Group::onButtonPress(GdkEventButton* event)
 
 		GtkWidget* launchAnother = gtk_menu_item_new_with_label("Launch");
 		GtkWidget* separator = gtk_separator_menu_item_new();
-		GtkWidget* pinToggle = mPinned ? 
+		GtkWidget* pinToggle = mPinned ?
 			gtk_menu_item_new_with_label("Unpin") :
 			gtk_menu_item_new_with_label("Pin this app");
 
@@ -451,7 +456,7 @@ void Group::onButtonPress(GdkEventButton* event)
 			if(!me->mPinned)
 				me->updateStyle();
 			Dock::savePinned();
-			
+
 		}), this);
 
 		gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), NULL);
@@ -459,57 +464,61 @@ void Group::onButtonPress(GdkEventButton* event)
 	}
 	else
 	{
-		GtkWidget* menu = Wnck::getActionMenu(mWindows.get(mTopWindowIndex));
-
-		GtkWidget* launchAnother = gtk_menu_item_new_with_label("Launch another");
-		GtkWidget* separator = gtk_separator_menu_item_new();
-		GtkWidget* pinToggle = mPinned ? 
-			gtk_menu_item_new_with_label("Unpin") :
-			gtk_menu_item_new_with_label("Pin this app");
-
-		gtk_widget_show(separator);
-		gtk_widget_show(launchAnother);
-		gtk_widget_show(pinToggle);
-
-		gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
-		gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(separator), 1, 2, 0, 2);
-		gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(pinToggle), 1, 2, 0, 2);
-
-		g_signal_connect(G_OBJECT(launchAnother), "activate",
-		G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
+		if(mTopWindow != NULL)
 		{
-			AppInfos::launch(me->mAppInfo);
-		}), this);
 
-		g_signal_connect(G_OBJECT(pinToggle), "activate",
-		G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
-		{
-			me->mPinned = !me->mPinned;
-			if(!me->mPinned)
-				me->updateStyle();
-			Dock::savePinned();
-			
-		}), this);
+			GtkWidget* menu = Wnck::getActionMenu(mTopWindow);
 
-		gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), NULL);
+			GtkWidget* launchAnother = gtk_menu_item_new_with_label("Launch another");
+			GtkWidget* separator = gtk_separator_menu_item_new();
+			GtkWidget* pinToggle = mPinned ?
+				gtk_menu_item_new_with_label("Unpin") :
+				gtk_menu_item_new_with_label("Pin this app");
 
-		gtk_menu_popup_at_widget (GTK_MENU (menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent *) event);
+			gtk_widget_show(separator);
+			gtk_widget_show(launchAnother);
+			gtk_widget_show(pinToggle);
 
-		//then destroy TODO
-		/* g_signal_connect (G_OBJECT (menu), "selection-done",
-          G_CALLBACK (xfce_tasklist_button_menu_destroy), child);
+			gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
+			gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(separator), 1, 2, 0, 2);
+			gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(pinToggle), 1, 2, 0, 2);
 
-					static void
-			xfce_tasklist_button_menu_destroy (GtkWidget         *menu,
-											XfceTasklistChild *child)
+			g_signal_connect(G_OBJECT(launchAnother), "activate",
+			G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
 			{
-			panel_return_if_fail (XFCE_IS_TASKLIST (child->tasklist));
-			panel_return_if_fail (GTK_IS_TOGGLE_BUTTON (child->button));
-			panel_return_if_fail (GTK_IS_WIDGET (menu));
+				AppInfos::launch(me->mAppInfo);
+			}), this);
 
-			gtk_widget_destroy (menu);
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (child->button), FALSE);
-			}*/
+			g_signal_connect(G_OBJECT(pinToggle), "activate",
+			G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
+			{
+				me->mPinned = !me->mPinned;
+				if(!me->mPinned)
+					me->updateStyle();
+				Dock::savePinned();
+
+			}), this);
+
+			gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), NULL);
+
+			gtk_menu_popup_at_widget (GTK_MENU (menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent *) event);
+
+			//then destroy TODO
+			/* g_signal_connect (G_OBJECT (menu), "selection-done",
+        	  G_CALLBACK (xfce_tasklist_button_menu_destroy), child);
+
+						static void
+				xfce_tasklist_button_menu_destroy (GtkWidget         *menu,
+												XfceTasklistChild *child)
+				{
+				panel_return_if_fail (XFCE_IS_TASKLIST (child->tasklist));
+				panel_return_if_fail (GTK_IS_TOGGLE_BUTTON (child->button));
+				panel_return_if_fail (GTK_IS_WIDGET (menu));
+
+				gtk_widget_destroy (menu);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (child->button), FALSE);
+				}*/
+		}
 	}
 }
 
@@ -521,19 +530,21 @@ void Group::onButtonRelease(GdkEventButton* event)
 	}
 	else if(mActive)
 	{
-		mWindows.get(mTopWindowIndex)->minimize();
+		if(mTopWindow != NULL) mTopWindow->minimize();
 	}
 	else
 	{
-		guint32 timestamp = event->time;
-		GroupWindow* groupWindow = mWindows.get(mTopWindowIndex);
-
-		mWindows.forEach([&timestamp, &groupWindow](GroupWindow* w)->void
+		if(mTopWindow != NULL)
 		{
-			if(w != groupWindow) w->activate(timestamp);
-		});
+			guint32 timestamp = event->time;
 
-		groupWindow->activate(timestamp);
+			mWindows.forEach([&timestamp, this](GroupWindow* w)->void
+			{
+				if(w != mTopWindow) w->activate(timestamp);
+			});
+
+			mTopWindow->activate(timestamp);
+		}
 	}
 }
 
@@ -543,18 +554,19 @@ void Group::onScroll(GdkEventScroll* event)
 
 	if(!mActive)
 	{
-		mWindows.get(mTopWindowIndex)->activate(event->time);
+		if(mTopWindow != NULL) mTopWindow->activate(event->time);
 	}
 	else
 	{
-		if(event->direction == GDK_SCROLL_UP)
-		mTopWindowIndex = ++mTopWindowIndex % mWindows.size();
-		else if(event->direction == GDK_SCROLL_DOWN)
-		{
-			int size = mWindows.size();
-			mTopWindowIndex = (--mTopWindowIndex + size) % size;
-		}
-		mWindows.get(mTopWindowIndex)->activate(event->time);
+		std::cerr << "Scrolling is disabled" << std::endl;
+// 		if(event->direction == GDK_SCROLL_UP)
+// 		mTopWindowIndex = ++mTopWindowIndex % mWindows.size();
+// 		else if(event->direction == GDK_SCROLL_DOWN)
+// 		{
+// 			int size = mWindows.size();
+// 			mTopWindowIndex = (--mTopWindowIndex + size) % size;
+// 		}
+// 		mWindows.get(mTopWindowIndex)->activate(event->time);
 	}
 }
 
@@ -571,12 +583,14 @@ bool Group::onDragMotion(GdkDragContext* context, int x, int y, guint time)
 		{
 			if(mWindowsCount > 0)
 			{
-				GroupWindow* groupWindow = mWindows.get(mTopWindowIndex);
+				if(mTopWindow != NULL)
+				{
+					mTopWindow->activate(time);
 
-				groupWindow->activate(time);
+					if(!mGroupMenu.mVisible)
+						onMouseEnter();
+				}
 
-				if(!mGroupMenu.mVisible)
-					onMouseEnter();
 			}
 
 			gdk_drag_status(context, GDK_ACTION_DEFAULT, time);
@@ -608,7 +622,7 @@ void Group::onDragDataReceived(const GdkDragContext* context, int x, int y, cons
 {
 	GdkAtom dt = gtk_selection_data_get_data_type(selectionData);
 	//if(gdk_atom_name(dt) == "button")
-	
+
 	Group* source = (Group*)gtk_selection_data_get_data(selectionData);
 	Dock::moveButton(source, this);
 }
