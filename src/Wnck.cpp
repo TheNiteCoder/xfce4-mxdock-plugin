@@ -120,6 +120,7 @@ namespace Wnck
 				return wi->mXID == wnck_window_get_xid(wnckWindow);
 			});
 			if(positer == mWindows.end()) return;
+			mWindows.erase(positer);
 			WindowInfo* ptr = *positer;
 			delete ptr;
 		}), NULL);

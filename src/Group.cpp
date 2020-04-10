@@ -194,6 +194,7 @@ void Group::add(GroupWindow* window)
 	mGroupMenu.add(window->mGroupMenuItem);
 
 	mWindowsCount.updateState();
+	mWindowsCount.forceFeedback();
 }
 
 void Group::remove(GroupWindow* window)
@@ -372,7 +373,7 @@ void Group::electNewTopWindow()
 {
 	if(mWindowsCount > 0)
 	{
-		GroupWindow* newTopWindow;
+		GroupWindow* newTopWindow = NULL;
 
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
 			if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
@@ -447,6 +448,8 @@ void Group::onButtonPress(GdkEventButton* event)
 		G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
 		{
 			AppInfos::launch(me->mAppInfo);
+			me->mWindowsCount.updateState();
+			me->mWindowsCount.forceFeedback();
 		}), this);
 
 		g_signal_connect(G_OBJECT(pinToggle), "activate",
@@ -487,6 +490,8 @@ void Group::onButtonPress(GdkEventButton* event)
 			G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
 			{
 				AppInfos::launch(me->mAppInfo);
+				me->mWindowsCount.updateState();
+				me->mWindowsCount.forceFeedback();
 			}), this);
 
 			g_signal_connect(G_OBJECT(pinToggle), "activate",
@@ -527,6 +532,8 @@ void Group::onButtonRelease(GdkEventButton* event)
 	if(event->state & GDK_SHIFT_MASK || (mPinned && mWindowsCount == 0))
 	{
 		AppInfos::launch(mAppInfo);
+		mWindowsCount.updateState();
+		mWindowsCount.forceFeedback();
 	}
 	else if(mActive)
 	{
