@@ -46,7 +46,6 @@ Group::Group(AppInfo* appInfo, bool pinned):
 		},
 		[this](uint windowsCount)->void {
 			updateStyle();
-			std::cerr << "Window Count: " << windowsCount << std::endl;
 			if(windowsCount < 1 && !mPinned)
 			{
 				gtk_widget_hide(mButton);
@@ -330,12 +329,10 @@ void Group::updateStyle()
 		{
 			if(Wnck::windowInCurrentWorkspace(pair.second->mWnckWindow))
 			{
-				std::cerr << "Showing window: " << Wnck::getName(pair.second) << " from group " << Wnck::getGroupName(pair.second) << std::endl;
 				gtk_widget_show(GTK_WIDGET(pair.first));
 			}
 			else
 			{
-				std::cerr << "Hiding window: " << Wnck::getName(pair.second) << " from group " << Wnck::getGroupName(pair.second) << std::endl;
 				gtk_widget_hide(GTK_WIDGET(pair.first));
 			}
 		}
@@ -347,6 +344,8 @@ void Group::updateStyle()
 			gtk_widget_show(GTK_WIDGET(pair.first));
 		}
 	}
+
+	electNewTopWindow();
 
 	int wCount = mWindowsCount;
 
@@ -416,6 +415,7 @@ void Group::onWindowUnactivate()
 
 void Group::setTopWindow(GroupWindow* groupWindow)
 {
+	if(groupWindow == NULL) std::cerr << "topWindow is NULL" << std::endl;
 	mTopWindow = groupWindow;
 }
 
@@ -425,7 +425,7 @@ void Group::onButtonPress(GdkEventButton* event)
 
 	if(event->button != 3) return;
 
-	if(mWindowsCount == 0)
+	if(mWindowsCount == 0 || mTopWindow == NULL)
 	{
 		GtkWidget* menu = gtk_menu_new();
 
@@ -558,7 +558,6 @@ void Group::onScroll(GdkEventScroll* event)
 	}
 	else
 	{
-		std::cerr << "Scrolling is disabled" << std::endl;
 // 		if(event->direction == GDK_SCROLL_UP)
 // 		mTopWindowIndex = ++mTopWindowIndex % mWindows.size();
 // 		else if(event->direction == GDK_SCROLL_DOWN)
