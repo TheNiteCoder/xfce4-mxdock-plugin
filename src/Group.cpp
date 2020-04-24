@@ -4,7 +4,6 @@
 #include "GroupMenu.hpp"
 
 static GtkTargetEntry entries[1] = { { "application/docklike_group", 0 ,0 } };
-
 Group::Group(AppInfo* appInfo, bool pinned):
 	mGroupMenu(this)
 {
@@ -46,6 +45,7 @@ Group::Group(AppInfo* appInfo, bool pinned):
 		},
 		[this](uint windowsCount)->void {
 			updateStyle();
+			electNewTopWindow();
 			if(windowsCount < 1 && !mPinned)
 			{
 				gtk_widget_hide(mButton);
@@ -142,9 +142,6 @@ Group::Group(AppInfo* appInfo, bool pinned):
 		me->onDraw(cr); return false;
 	}), this);
 
-	// g_signal_connect(G_OBJECT(Wcnk::mWcnkScreen), "active-workspace-changed",
-	// G_CALLBACK(+[]()))
-
 	gtk_drag_source_set(mButton, GDK_BUTTON1_MASK, entries, 1, GDK_ACTION_MOVE);
 	gtk_drag_dest_set(mButton, GTK_DEST_DEFAULT_DROP, entries, 1, GDK_ACTION_MOVE);
 
@@ -203,14 +200,10 @@ void Group::remove(GroupWindow* window)
 	mGroupMenu.remove(window->mGroupMenuItem);
 
 	mWindowsCount.updateState();
-
-	electNewTopWindow(); //TODEL
+	mWindowsCount.forceFeedback();
 
 	setStyle(Style::Focus, false);
 }
-
-
-
 
 void Group::resize()
 {
@@ -318,9 +311,6 @@ void Group::setMouseLeaveTimeout()
 	mLeaveTimeout.start();
 }
 
-
-
-
 void Group::updateStyle()
 {
 	// Hide menu items
@@ -345,8 +335,6 @@ void Group::updateStyle()
 			gtk_widget_show(GTK_WIDGET(pair.first));
 		}
 	}
-
-	electNewTopWindow();
 
 	int wCount = mWindowsCount;
 
@@ -416,7 +404,6 @@ void Group::onWindowUnactivate()
 
 void Group::setTopWindow(GroupWindow* groupWindow)
 {
-	if(groupWindow == NULL) std::cerr << "topWindow is NULL" << std::endl;
 	mTopWindow = groupWindow;
 }
 

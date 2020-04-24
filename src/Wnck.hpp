@@ -25,6 +25,11 @@ namespace Wnck
 			WindowInfo(WnckWindow* wnckWindow);
 			~WindowInfo();
 
+			// this function is called after the new WindowInfo* is added to mWindows
+			// this is to prevent from the electing of a new window taking place before 
+			// the WindowInfo* is added to the array
+			void construct();
+
 			gulong mXID;
 			GroupWindow* mGroupWindow;
 			bool mVisible;

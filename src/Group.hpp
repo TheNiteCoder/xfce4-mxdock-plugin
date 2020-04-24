@@ -27,6 +27,7 @@ class Group
 		};
 
 		Group(AppInfo* appInfo, bool pinned);
+		~Group();
 
 		void add(GroupWindow* window);
 		void remove(GroupWindow* window);

@@ -24,6 +24,8 @@
 			GroupWindow(WnckWindow* wnckWindow);
 			~GroupWindow();
 
+			void lateInit();
+
 			void getInGroup(Group* group);
 			void leaveGroup(Group* group);
 
@@ -47,6 +49,7 @@
 
 			gulong mScreenWorkspaceChangedID;
 			WnckScreen* mScreen;
+			AppInfo* mAppInfo;
 	};
 
 #endif

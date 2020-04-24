@@ -16,6 +16,11 @@ namespace Wnck
 		mVisible = true;
 	}
 
+	void WindowInfo::construct()
+	{
+		mGroupWindow->lateInit();
+	}
+
 	WindowInfo::~WindowInfo()
 	{
 		delete mGroupWindow;
@@ -108,9 +113,9 @@ namespace Wnck
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-opened",
 		G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
 		{
-			mWindows.push_back(new WindowInfo(wnckWindow));
-			//if(mContext->config->getShowOnlyWindowsInCurrentWorkspace())
-				//removeWindowsInOtherWorkspaces();
+			WindowInfo* ptr = new WindowInfo(wnckWindow);
+			mWindows.push_back(ptr);
+			ptr->construct(); // construct WindowInfo after it has been added to the array
 		}), NULL);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-closed",
@@ -135,9 +140,11 @@ namespace Wnck
 		for (GList* window_l = wnck_screen_get_windows(mWnckScreen); window_l != NULL; window_l = window_l->next)
 		{
 			WnckWindow* wnckWindow = WNCK_WINDOW(window_l->data);
-			mWindows.push_back(new WindowInfo(wnckWindow));
+			WindowInfo* inbetween = new WindowInfo(wnckWindow);
+			mWindows.push_back(inbetween);
+			inbetween->construct();
 		}
-		if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
+		//if(Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace())
 			//removeWindowsInOtherWorkspaces();
 		setActiveWindow();
 	}
