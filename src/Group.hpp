@@ -18,6 +18,16 @@ class Group
 {
 	public:
 
+		enum DockPosition
+		{
+			Empty,
+			Floating,
+			Top,
+			Bottom,
+			Left,
+			Right
+		};
+
 		enum Style
 		{
 			Focus,
@@ -33,6 +43,7 @@ class Group
 		void remove(GroupWindow* window);
 
 		void resize();
+		void redraw();
 		void setStyle(Style style, bool val);
 		void updateStyle();
 		void electNewTopWindow();
@@ -80,7 +91,8 @@ class Group
 		Help::Gtk::Timeout mLeaveTimeout;
 		Help::Gtk::Timeout mMenuShowTimeout;
 
-
+		GtkOrientation mDockOrientation;
+		DockPosition mDockPosition;
 };
 
 #endif 

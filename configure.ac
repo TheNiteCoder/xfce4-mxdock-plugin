@@ -1,4 +1,4 @@
-AC_INIT([docklike-plugin], [0.0.1])
+AC_INIT([xfce4-mxdock-plugin], [0.0.1])
 AM_INIT_AUTOMAKE([1.15.0 -Wall -Werror])
 
 AM_CONFIG_HEADER(config.h)
@@ -10,6 +10,15 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 #IT_PROG_INTLTOOL([0.40.0])
 AM_PROG_AR
+
+dnl Vertical status bar option
+AC_ARG_ENABLE([vertical_bar],
+			  AS_HELP_STRING([--disable-vertical-bar], [Disable vertical bar]))
+
+AS_IF([test "x$enable_vertical_bar" != "xno"], [
+	dnl Doing stuff to enable feature
+	AC_DEFINE([VERTICAL_BAR_ENABLED], [1], [Vertical Bar Status is Enabled])
+])
 
 dnl Initialize libtool, prevent static libraries to remove pointless
 dnl compilation

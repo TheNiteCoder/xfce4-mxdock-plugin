@@ -28,6 +28,8 @@ namespace Plugin
 		Dock::init();
 		Wnck::init();
 
+		Dock::UpdateGroupsScreenPosition();
+
 		//--------------------------------------------------
 
 		gtk_container_add(GTK_CONTAINER(xfPlugin), GTK_WIDGET(Dock::mBox));
@@ -45,6 +47,11 @@ namespace Plugin
 		g_signal_connect(G_OBJECT(GTK_WIDGET(mXfPlugin)), "orientation-changed",
 		G_CALLBACK(+[](XfcePanelPlugin *plugin, GtkOrientation orientation){
 			Dock::onPanelOrientationChange(orientation);
+		}), NULL);
+
+		g_signal_connect(G_OBJECT(GTK_WIDGET(mXfPlugin)), "screen-position-changed",
+		G_CALLBACK(+[](XfcePanelPlugin* plugin, XfceScreenPosition pos){
+			Dock::onScreenPositionChange(pos);
 		}), NULL);
 
 		xfce_panel_plugin_menu_show_configure(mXfPlugin);

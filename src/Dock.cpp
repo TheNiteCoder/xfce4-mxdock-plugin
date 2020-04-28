@@ -35,6 +35,41 @@ namespace Dock
 		}
 	}
 
+	Group::DockPosition getDockPosition(XfceScreenPosition position)
+	{
+		Group::DockPosition pos = Group::DockPosition::Empty;
+		if(xfce_screen_position_is_floating(position))
+		{
+			pos = Group::DockPosition::Floating;
+		}
+		else if(xfce_screen_position_is_top(position))
+		{
+			pos = Group::DockPosition::Top;
+		}
+		else if(xfce_screen_position_is_bottom(position))
+		{
+			pos = Group::DockPosition::Bottom;
+		}
+		else if(xfce_screen_position_is_left(position))
+		{
+			pos = Group::DockPosition::Left;
+		}
+		else if(xfce_screen_position_is_right(position))
+		{
+			pos = Group::DockPosition::Right;
+		}
+		return pos;
+	}
+
+	void UpdateGroupsScreenPosition()
+	{
+		Group::DockPosition pos = getDockPosition(xfce_panel_plugin_get_screen_position(Plugin::mXfPlugin));
+		mGroups.forEach([=](std::pair<AppInfo*, Group*> g){
+			g.second->mDockPosition = pos;
+			g.second->redraw();
+		});
+	}
+
 	Group* prepareGroup(AppInfo* appInfo)
 	{
 		Group* group = mGroups.get(appInfo);
@@ -48,6 +83,9 @@ namespace Dock
 
 			gtk_container_add(GTK_CONTAINER(mBox), GTK_WIDGET(group->mButton));
 		}
+
+		group->mDockOrientation = xfce_panel_plugin_get_orientation(Plugin::mXfPlugin);
+		group->mDockPosition = getDockPosition(xfce_panel_plugin_get_screen_position(Plugin::mXfPlugin));
 
 		return group;
 	}
@@ -119,5 +157,12 @@ namespace Dock
 	void onPanelOrientationChange(GtkOrientation orientation)
 	{
 		gtk_orientable_set_orientation(GTK_ORIENTABLE(mBox), orientation);
+		mGroups.forEach([=](std::pair<AppInfo*, Group*> g)->void { g.second->mDockOrientation = orientation; });
+	}
+
+	void onScreenPositionChange(XfceScreenPosition position)
+	{
+		Group::DockPosition pos = getDockPosition(position);
+		mGroups.forEach([=](std::pair<AppInfo*, Group*> g)->void { g.second->mDockPosition = pos; g.second->redraw(); });
 	}
 }

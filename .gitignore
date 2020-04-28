@@ -11,6 +11,7 @@ autom4te.cache/
 compile
 config.guess
 config.h
+config.h.in*
 config.log
 config.status
 config.sub
@@ -26,3 +27,5 @@ src/.libs/
 *.in
 *.lo
 *.la
+.ccls
+compile_commands.json

@@ -3,6 +3,8 @@
 #include "Dock.hpp"
 #include "GroupMenu.hpp"
 
+#include "config.h"
+
 static GtkTargetEntry entries[1] = { { "application/docklike_group", 0 ,0 } };
 Group::Group(AppInfo* appInfo, bool pinned):
 	mGroupMenu(this)
@@ -213,6 +215,11 @@ void Group::resize()
 	gtk_image_set_pixel_size(GTK_IMAGE(img), Dock::mIconSize);
 }
 
+void Group::redraw()
+{
+	gtk_widget_queue_draw(mButton);
+}
+
 void Group::setStyle(Style style, bool val)
 {
 	switch(style) {
@@ -246,35 +253,122 @@ void Group::onDraw(cairo_t* cr)
 	int w = gtk_widget_get_allocated_width(GTK_WIDGET(mButton));
 	int h = gtk_widget_get_allocated_height(GTK_WIDGET(mButton));
 
-	if(aBack > 0){
+	if(aBack > 0) {
+		// Drawing the main box that highlights the box
 		cairo_set_source_rgba(cr, 0.5, 0.5, 0.5, aBack);
 		cairo_rectangle(cr, 0, 0, w, h);
 		cairo_fill(cr);
 	}
 
-	if(mSOpened){
+	if(mSOpened) {
+		// drawing status bar indicating a window is open
 		if(mSFocus)
 			cairo_set_source_rgba(cr, 0.30, 0.65, 0.90, 1);
 		else
 			cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
+#ifdef VERTICAL_BAR_ENABLED
+		if(mDockPosition == DockPosition::Right)
+		{
+			cairo_rectangle(cr, w*0.9231, 0, w, h);
+		}
+		else if(mDockPosition == DockPosition::Left)
+		{
+			cairo_rectangle(cr, 0, 0, w*0.0769, h);
+		}
+		else
+		{
+			cairo_rectangle(cr, 0, h*0.9231, w, h);
+		}
+#else
 		cairo_rectangle(cr, 0, h*0.9231, w, h);
+#endif
 		cairo_fill(cr);
+
+#ifdef VERTICAL_BAR_ENABLED
+		// handle having an extra blip if there are serveral windows in group
+		if(mSMany && (mSOpened || mSHover))
+		{
+			if(mDockPosition == DockPosition::Right)
+			{
+				cairo_rectangle(cr, w*0.9231, 0, w, h*0.12);
+			}
+			else if(mDockPosition == DockPosition::Left)
+			{
+				cairo_rectangle(cr, 0, 0, w*0.0679, h*0.12);
+			}
+			cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
+			cairo_fill(cr);
+		}
+#endif
 	}
+// drawing the edge that gives the impression that there is more windows
 
 	if(mSMany && (mSOpened || mSHover))
 	{
+#ifdef VERTICAL_BAR_ENABLED
+		int x1, x2;
+		cairo_pattern_t* pat;
+		if(mDockPosition == DockPosition::Right)
+		{
+			x1 = 0;
+			x2 = (int) w * 0.12;
+		}
+		else
+		{
+			x1 = (int) w * 0.88;
+			x2 = w;
+		}
+		pat = cairo_pattern_create_linear(x1, 0, x2, 0);
+#else
 		int x1 = (int) w*0.88;
 		cairo_pattern_t *pat = cairo_pattern_create_linear(x1, 0, w, 0);
+#endif
 
-		cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.45);
-		cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
-		cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.15);
-
-		if(aBack > 0)
-			cairo_rectangle(cr, x1, 0, w, h);
+ 		if(mDockPosition == DockPosition::Right)
+		{
+			cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.15);
+			cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
+			cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.45);
+		}
 		else
-			cairo_rectangle(cr, x1, h*0.9231, w, h);
+		{
+			cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.45);
+			cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
+			cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.15);
+		}
+
+		if(aBack > 0) // if hovering or active
+		{
+#ifdef VERTICAL_BAR_ENABLED
+			if(mDockPosition == DockPosition::Right)
+			{
+				cairo_rectangle(cr, x1, 0, x2, h);
+			}
+			else
+			{
+				cairo_rectangle(cr, x1, 0, x2, h);
+			}
+#else
+			cairo_rectangle(cr, x1, 0, w, h);
+#endif
+		}
+		else
+		{
+#ifdef VERTICAL_BAR_ENABLED
+			if(mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
+			{
+				// Do not do anything here this is taken care of before
+				// cairo_rectangle(cr, x1, 0, x2, h);
+			}
+			else
+			{
+				cairo_rectangle(cr, x1, h*0.9231, x2, h);
+			}
+#else
+				cairo_rectangle(cr, x1, h*0.9231, w, h);
+#endif
+		}
 
 		cairo_set_source(cr, pat);
 		cairo_fill(cr);
@@ -286,8 +380,7 @@ void Group::onMouseEnter()
 {
 	mLeaveTimeout.stop();
 
-	Dock::mGroups.forEach([](std::pair<AppInfo*, Group*> g)->void
-	{
+	Dock::mGroups.forEach([](std::pair<AppInfo*, Group*> g)->void {
 		g.second->mGroupMenu.mGroup->onMouseLeave();
 	});
 
@@ -370,7 +463,7 @@ void Group::electNewTopWindow()
 			}
 			else return info->mGroupWindow->mGroup == this;
 		});
-		
+
 		if(iter == Wnck::mWindows.end())
 		{
 			newTopWindow = NULL;

@@ -35,6 +35,8 @@ namespace Dock
 
 	void onPanelResize(int size);
 	void onPanelOrientationChange(GtkOrientation orientation);
+	void UpdateGroupsScreenPosition();
+	void onScreenPositionChange(XfceScreenPosition position);
 
 	extern GtkWidget* mBox;
 	extern Store::KeyStore<AppInfo*, Group*> mGroups;
