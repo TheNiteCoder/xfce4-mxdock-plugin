@@ -199,8 +199,15 @@ namespace Wnck
 			auto iter = std::find_if(mWindows.begin(), mWindows.end(), [&activeXID](WindowInfo* wi){
 				return wi->mXID == activeXID;
 			});
-			if(iter == mWindows.end()) return;
+			if(iter == mWindows.end())
+			{
+				std::cerr << "mxdock: failed to find an active window" << std::endl;
+				return;
+			}
 			WindowInfo* ptr = *iter;
+			mWindows.erase(iter);
+			mWindows.push_front(ptr);
+			ptr->mGroupWindow->onActivate();
 
 			//mGroupWindows.first()->onUnactivate();
 			//mGroupWindows.moveToStart(activeXID)->onActivate();
