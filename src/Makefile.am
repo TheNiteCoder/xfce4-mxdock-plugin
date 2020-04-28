@@ -8,10 +8,10 @@
 
 # Defining libraries to be built and their installation destination
 plugindir = $(libdir)/xfce4/panel-plugins
-plugin_LTLIBRARIES = libdocklike.la
+plugin_LTLIBRARIES = libmxdock.la
 
 # List of source files needed to build the library
-libdocklike_la_SOURCES = \
+libmxdock_la_SOURCES = \
 						Theme.cpp Theme.hpp \
 						AppInfos.cpp AppInfos.hpp \
 						Config.cpp Config.hpp \
@@ -27,18 +27,18 @@ libdocklike_la_SOURCES = \
 						PluginContext.cpp PluginContext.hpp \
 						register.c
 
-libdocklike_la_LDFLAGS = \
+libmxdock_la_LDFLAGS = \
                       -avoid-version \
                       -module \
                       -no-undefined \
     -export-symbols-regex '^xfce_panel_module_(preinit|init|construct)'
 
 
-libdocklike_la_CPPFLAGS = \
+libmxdock_la_CPPFLAGS = \
                         @LIBXFCE4PANEL_CFLAGS@ \
                         @LIBXFCE4UI_CFLAGS@
 
-libdocklike_la_LIBADD = \
+libmxdock_la_LIBADD = \
                         @LIBXFCE4PANEL_LIBS@ \
                         @LIBXFCE4UI_LIBS@ \
                         $(GTK_LIBS) \
