@@ -10,6 +10,8 @@
 plugindir = $(libdir)/xfce4/panel-plugins
 plugin_LTLIBRARIES = libmxdock.la
 
+CLEANFILES = _gresources.c
+
 # List of source files needed to build the library
 libmxdock_la_SOURCES = \
 						_gresources.c \
