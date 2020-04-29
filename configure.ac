@@ -13,9 +13,9 @@ AM_PROG_AR
 
 dnl Vertical status bar option
 AC_ARG_ENABLE([vertical_bar],
-			  AS_HELP_STRING([--disable-vertical-bar], [Disable vertical bar]))
+			  AS_HELP_STRING([--enable-vertical-bar], [Enable vertical bar]))
 
-AS_IF([test "x$enable_vertical_bar" != "xno"], [
+AS_IF([test "x$enable_vertical_bar" = "xyes"], [
 	dnl Doing stuff to enable feature
 	AC_DEFINE([VERTICAL_BAR_ENABLED], [1], [Vertical Bar Status is Enabled])
 ])
