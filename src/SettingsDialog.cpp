@@ -36,7 +36,7 @@ namespace SettingsDialog
 		g_signal_connect(showOnlyWindowsInCurrentWorkspace, "toggled",
 			G_CALLBACK(+[](GtkToggleButton* showOnlyWindowsInCurrentWorkspace) {
 				Settings::showOnlyWindowsInCurrentWorkspace.set(gtk_toggle_button_get_active(showOnlyWindowsInCurrentWorkspace));
-				std::cerr << "Toggled" << std::endl;
+				Dock::updateGroupsWindowCount(); // this should trigger the windows to hide or show
 			}),
 			NULL);
 

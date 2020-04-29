@@ -38,6 +38,8 @@ namespace Dock
 	void UpdateGroupsScreenPosition();
 	void onScreenPositionChange(XfceScreenPosition position);
 
+	void updateGroupsWindowCount();
+
 	extern GtkWidget* mBox;
 	extern Store::KeyStore<AppInfo*, Group*> mGroups;
 
