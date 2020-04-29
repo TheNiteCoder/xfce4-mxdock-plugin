@@ -3,15 +3,16 @@
 #ifndef WNCK_HPP
 #define WNCK_HPP
 
-#include <map>
 #include <fcntl.h>
-
 #include <libwnck/libwnck.h>
 
+#include <map>
+
+#include "Group.hpp"
 #include "GroupWindow.hpp"
-#include "Store.tpp"
 #include "Helpers.hpp"
 #include "Plugin.hpp"
+#include "Store.tpp"
 
 class GroupWindow;
 
@@ -43,8 +44,6 @@ namespace Wnck
 		gushort getState(GroupWindow* groupWindow);
 		GdkPixbuf* getMiniIcon(GroupWindow* groupWindow);
 
-		GtkWidget* getActionMenu(GroupWindow* groupWindow);
-
 		void close(GroupWindow* groupWindow, guint32 timestamp);
 		void activate(GroupWindow* groupWindow, guint32 timestamp);
 		void minimize(GroupWindow* groupWindow);
@@ -52,6 +51,8 @@ namespace Wnck
 		void setActiveWindow();
 	
 		bool windowInCurrentWorkspace(WnckWindow* window);
+
+		GtkWidget* buildActionMenu(GroupWindow* groupWindow, Group* group);
 
 		extern WnckScreen* mWnckScreen;
 		extern std::list<WindowInfo*> mWindows;

@@ -2,7 +2,6 @@
 
 #include "Group.hpp"
 #include "GroupMenuItem.hpp"
-
 #include "Plugin.hpp"
 
 GroupMenu::GroupMenu(Group* dockButton)
@@ -10,6 +9,7 @@ GroupMenu::GroupMenu(Group* dockButton)
 	mWindow = gtk_window_new(GtkWindowType::GTK_WINDOW_POPUP);
 	gtk_widget_add_events(mWindow, GDK_SCROLL_MASK);
 	gtk_window_set_default_size(GTK_WINDOW(mWindow), 1, 1);
+	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(mWindow)), "stld");
 	mGroup = dockButton;
 
 	mVisible = mMouseHover = false;
@@ -20,71 +20,80 @@ GroupMenu::GroupMenu(Group* dockButton)
 	gtk_widget_show(mBox);
 
 	g_signal_connect(G_OBJECT(mWindow), "enter-notify-event",
-	G_CALLBACK(+[](GtkWidget* widget, GdkEvent* event, GroupMenu* me){
-		me->mGroup->setStyle(Group::Style::Hover, true);
-		me->mGroup->mLeaveTimeout.stop();
-		me->mMouseHover = true;
-		return true;
-	}), this);
+		G_CALLBACK(+[](GtkWidget* widget, GdkEvent* event, GroupMenu* me) {
+			me->mGroup->setStyle(Group::Style::Hover, true);
+			me->mGroup->mLeaveTimeout.stop();
+			me->mMouseHover = true;
+			return true;
+		}),
+		this);
 
 	g_signal_connect(G_OBJECT(mWindow), "leave-notify-event",
-	G_CALLBACK(+[](GtkWidget* widget, GdkEvent* event, GroupMenu* me){
-		int w; int h; gtk_window_get_size(GTK_WINDOW(me->mWindow), &w, &h);
-		int mx = ((GdkEventCrossing*)event)->x; int my = ((GdkEventCrossing*)event)->y;
-		if(mx >= 0 && mx < w && my >= 0 && my < h) return true;
+		G_CALLBACK(+[](GtkWidget* widget, GdkEvent* event, GroupMenu* me) {
+			int w;
+			int h;
+			gtk_window_get_size(GTK_WINDOW(me->mWindow), &w, &h);
+			int mx = ((GdkEventCrossing*)event)->x;
+			int my = ((GdkEventCrossing*)event)->y;
+			if (mx >= 0 && mx < w && my >= 0 && my < h)
+				return true;
 
-		me->mGroup->setMouseLeaveTimeout();
-		me->mMouseHover = false;
-		return true;
-	}), this);
+			me->mGroup->setMouseLeaveTimeout();
+			me->mMouseHover = false;
+			return true;
+		}),
+		this);
 
 	g_signal_connect(G_OBJECT(mWindow), "scroll-event",
-	G_CALLBACK(+[](GtkWidget* widget, GdkEventScroll* event, GroupMenu* me){
-		((Group*)me->mGroup)->onScroll(event); //TODO BRAH
-		return true;
-	}), this);
+		G_CALLBACK(+[](GtkWidget* widget, GdkEventScroll* event, GroupMenu* me) {
+			((Group*)me->mGroup)->onScroll(event); // TODO BRAH
+			return true;
+		}),
+		this);
 }
 
-void GroupMenu::add(GroupMenuItem& menuItem)
+void GroupMenu::add(GroupMenuItem* menuItem)
 {
-	gtk_box_pack_end(GTK_BOX(mBox), GTK_WIDGET(menuItem.mItem), false, true, 0);
+	gtk_box_pack_end(GTK_BOX(mBox), GTK_WIDGET(menuItem->mItem), false, true, 0);
 
-	mItemWindowPairs.push_back({menuItem.mItem, menuItem.mGroupWindow});
-
-	if(mGroup->mSHover)
+ 	mItemWindowPairs.push_back({menuItem->mItem, menuItem->mGroupWindow});
+	if (mGroup->mSHover)
 	{
 		popup();
-		gtk_widget_show(mWindow);
 	}
 }
 
-void GroupMenu::remove(GroupMenuItem& menuItem)
+void GroupMenu::remove(GroupMenuItem* menuItem)
 {
-	gtk_container_remove(GTK_CONTAINER(mBox), GTK_WIDGET(menuItem.mItem));
+	gtk_container_remove(GTK_CONTAINER(mBox), GTK_WIDGET(menuItem->mItem));
 	gtk_window_resize(GTK_WINDOW(mWindow), 1, 1);
 
-	auto iter = std::find_if(mItemWindowPairs.begin(), mItemWindowPairs.end(), [menuItem](std::pair<GtkEventBox*, GroupWindow*> pair){
-			return pair.first == menuItem.mItem;
-	});
-
-	mItemWindowPairs.erase(iter);
-
+ 	auto iter = std::find_if(mItemWindowPairs.begin(), mItemWindowPairs.end(), [menuItem](std::pair<GtkEventBox*, GroupWindow*> pair){
+ 			return pair.first == menuItem->mItem;
+ 	});
+ 
+ 	mItemWindowPairs.erase(iter);
+ 
 	if(mGroup->mWindowsCount == 0)
+	if (mGroup->mWindowsCount < (Settings::noWindowsListIfSingle ? 2 : 1))
 		gtk_widget_hide(mWindow);
 }
 
 void GroupMenu::popup()
 {
-	gint wx, wy;
+	if (mGroup->mWindowsCount >= (Settings::noWindowsListIfSingle ? 2 : 1))
+	{
+		gint wx, wy;
 
-	xfce_panel_plugin_position_widget(Plugin::mXfPlugin, mWindow, mGroup->mButton, &wx, &wy);
-	gtk_window_move(GTK_WINDOW(mWindow), wx, wy);
-	if(mGroup->mWindowsCount > 0)
-		gtk_widget_show(mWindow);
+		xfce_panel_plugin_position_widget(Plugin::mXfPlugin, mWindow, mGroup->mButton, &wx, &wy);
+		gtk_window_move(GTK_WINDOW(mWindow), wx, wy);
+		if (mGroup->mWindowsCount > 0)
+			gtk_widget_show(mWindow);
 
-	gtk_window_resize(GTK_WINDOW(mWindow), 1, 1);
+		gtk_window_resize(GTK_WINDOW(mWindow), 1, 1);
 
-	mVisible = true;
+		mVisible = true;
+	}
 }
 
 void GroupMenu::hide()
@@ -103,16 +112,17 @@ uint GroupMenu::getPointerDistance()
 
 	Plugin::getPointerPosition(&px, &py);
 
-	uint dx, dy; dx = dy = 0;
+	uint dx, dy;
+	dx = dy = 0;
 
-	if(px < wx)
+	if (px < wx)
 		dx = wx - px;
-	else if(px > wx + ww)
+	else if (px > wx + ww)
 		dx = px - (wx + ww);
 
-	if(py < wy)
+	if (py < wy)
 		dy = wy - py;
-	else if(py > wy + wh)
+	else if (py > wy + wh)
 		dy = py - (wy + wh);
 
 	return std::max(dx, dy);

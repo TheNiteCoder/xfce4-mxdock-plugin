@@ -41,6 +41,7 @@ dnl Checks for libraries
 PKG_CHECK_MODULES([WNCK], [libwnck-3.0 >= 3.30.0])
 PKG_CHECK_MODULES([CAIRO], [cairo >= 1.16.0])
 PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.24.0])
+PKG_CHECK_MODULES([X11], [x11 >= 1.6])
 
 AC_SUBST([WNCK_CFLAGS])
 AC_SUBST([CAIRO_LIBS])

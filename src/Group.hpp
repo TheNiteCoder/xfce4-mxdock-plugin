@@ -1,23 +1,23 @@
 #ifndef DOCK_BUTTON_HPP
 #define DOCK_BUTTON_HPP
 
-#include <iostream>
-
 #include <gtk/gtk.h>
 
-#include "Helpers.hpp"
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+
 #include "AppInfos.hpp"
-#include "GroupWindow.hpp"
 #include "GroupMenu.hpp"
+#include "GroupWindow.hpp"
+#include "Helpers.hpp"
 #include "State.tpp"
 #include "Plugin.hpp"
 
 class GroupWindow;
 
 class Group
-{
-	public:
-
+{ public: 
 		enum DockPosition
 		{
 			Empty,
@@ -60,11 +60,13 @@ class Group
 		void onMouseLeave();
 		void setMouseLeaveTimeout();
 
-		bool onDragMotion(GdkDragContext* context, int x, int y, guint time);
+		bool onDragMotion(GtkWidget* widget, GdkDragContext* context, int x, int y, guint time);
 		void onDragLeave(const GdkDragContext* context, guint time);
 		void onDragDataGet(const GdkDragContext* context, GtkSelectionData* selectionData, guint info, guint time);
 		void onDragDataReceived(const GdkDragContext* context, int x, int y, const GtkSelectionData* selectionData, guint info, guint time);
 		void onDragBegin(GdkDragContext* context);
+
+		void activate(guint32 timestamp);
 
 		bool mHover;
 		bool mPinned;
@@ -75,6 +77,7 @@ class Group
 		bool mSOpened;
 		bool mSMany;
 		bool mSHover;
+		bool mActiveBeforePressed;
 		uint mTolerablePointerDistance;
 
 		LogicalState<uint> mWindowsCount;
@@ -82,6 +85,7 @@ class Group
 		AppInfo* mAppInfo;
 		Store::List<GroupWindow*> mWindows;
 		GroupWindow* mTopWindow;
+		GdkPixbuf* mIconPixbuf;
 
 		void setTopWindow(GroupWindow* groupWindow);
 

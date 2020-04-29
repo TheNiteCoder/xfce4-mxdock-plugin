@@ -6,50 +6,49 @@
 #include <gtk/gtk.h>
 #include <libwnck/libwnck.h>
 
-#include "Helpers.hpp"
+#include <iostream>
+
 #include "AppInfos.hpp"
-#include "Wnck.hpp"
 #include "Dock.hpp"
 #include "Group.hpp"
 #include "GroupMenuItem.hpp"
+#include "Helpers.hpp"
+#include "Wnck.hpp"
 
-#include <iostream>
-	
-	class Group;
+class GroupMenuItem;
+class Group;
 
+class GroupWindow
+{
+  public:
+	GroupWindow(WnckWindow* wnckWindow);
+	~GroupWindow();
 
-	class GroupWindow
-	{
-		public:
-			GroupWindow(WnckWindow* wnckWindow);
-			~GroupWindow();
+	void lateInit();
+	void getInGroup(Group* group);
+	void leaveGroup(Group* group);
 
-			void lateInit();
+	void onActivate();
+	void onUnactivate();
 
-			void getInGroup(Group* group);
-			void leaveGroup(Group* group);
+	bool getState(WnckWindowState flagMask);
 
-			void onActivate();
-			void onUnactivate();
+	void activate(guint32 timestamp);
+	void minimize();
+	void showMenu();
 
-			bool getState(WnckWindowState flagMask);
+	Group* mGroup;
 
-			void activate(guint32 timestamp);
-			void minimize();
-			void showMenu();
+	// TODO disabled during upstream merge
+ 	bool mVisible;
+ 	gulong mScreenWorkspaceChangedID;
+ 	WnckScreen* mScreen;
+ 	AppInfo* mAppInfo;
+	WnckWindow* mWnckWindow;
+	GroupMenuItem* mGroupMenuItem;
 
-			Group* mGroup;
-
-			WnckWindow* mWnckWindow;
-			GroupMenuItem mGroupMenuItem;
-			bool mVisible;
-
-			void updateState(unsigned short state, unsigned short changeMask = USHRT_MAX);
-			unsigned short mState;
-
-			gulong mScreenWorkspaceChangedID;
-			WnckScreen* mScreen;
-			AppInfo* mAppInfo;
-	};
+	void updateState(unsigned short state, unsigned short changeMask = USHRT_MAX);
+	unsigned short mState;
+};
 
 #endif

@@ -1,15 +1,19 @@
 #ifndef THEME_HPP
 #define THEME_HPP
 
+#include <gtk/gtk.h>
+
 #include <iostream>
 #include <string>
 
-#include <gtk/gtk.h>
+#include "Dock.hpp"
 
 namespace Theme
 {
-	void init(GtkWidget* panel);
+	void init();
 	void load();
-}
+
+	void applyDefault(GtkWidget* widget);
+} // namespace Theme
 
 #endif

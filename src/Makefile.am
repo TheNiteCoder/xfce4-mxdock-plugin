@@ -12,9 +12,10 @@ plugin_LTLIBRARIES = libmxdock.la
 
 # List of source files needed to build the library
 libmxdock_la_SOURCES = \
+						_gresources.c \
 						Theme.cpp Theme.hpp \
 						AppInfos.cpp AppInfos.hpp \
-						Config.cpp Config.hpp \
+						Settings.cpp Settings.hpp \
 						Group.cpp Group.hpp \
 						GroupMenu.cpp GroupMenu.hpp \
 						GroupMenuItem.cpp GroupMenuItem.hpp \
@@ -23,8 +24,7 @@ libmxdock_la_SOURCES = \
 						Plugin.cpp Plugin.hpp \
 						Dock.cpp Dock.hpp \
 						Wnck.cpp Wnck.hpp \
-						Settings.cpp Settings.hpp \
-						PluginContext.cpp PluginContext.hpp \
+						SettingsDialog.cpp SettingsDialog.hpp \
 						register.c
 
 libmxdock_la_LDFLAGS = \
@@ -44,6 +44,9 @@ libmxdock_la_LIBADD = \
                         $(GTK_LIBS) \
 						$(CAIRO_LIBS) \
 						$(WNCK_LIBS)
+
+_gresources.c: _gresources.xml _dialogs.xml
+	glib-compile-resources --generate-source --target _gresources.c _gresources.xml
 
 
 # Recently (>=2017) dependent libraries seem to require building with

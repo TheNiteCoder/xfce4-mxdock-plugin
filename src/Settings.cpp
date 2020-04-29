@@ -1,63 +1,72 @@
-
 #include "Settings.hpp"
-
-#include <iostream>
 
 namespace Settings
 {
+	std::string mPath;
+	GKeyFile* mFile;
 
-void handler(GtkWidget* dialog, gint response)
-{
-	g_object_set_data(G_OBJECT(Plugin::mXfPlugin), "dialog", NULL);
+	State<bool> forceIconSize;
+	State<int> iconSize;
+	State<bool> noWindowsListIfSingle;
+	State<int> indicatorStyle;
+	State<std::list<std::string>> pinnedAppList;
+	State<bool> showOnlyWindowsInCurrentWorkspace;
 
-	xfce_panel_plugin_unblock_menu(Plugin::mXfPlugin);
-	
-	Plugin::mConfig->save();
+	void init()
+	{
+		mPath = xfce_panel_plugin_save_location(Plugin::mXfPlugin, true);
 
-	gtk_widget_destroy(dialog);
-}
+		mFile = g_key_file_new();
+		g_key_file_load_from_file(mFile, mPath.c_str(), G_KEY_FILE_NONE, NULL);
 
-void toggle_of_show_only_workspace_windows(GtkToggleButton* toggleButton)
-{
-	Plugin::mConfig->setShowOnlyWindowsInCurrentWorkspace(gtk_toggle_button_get_active(toggleButton));
-}
+		forceIconSize.setup(g_key_file_get_boolean(mFile, "user", "forceIconSize", NULL),
+			[](bool forceIconSize) -> void {
+				g_key_file_set_boolean(mFile, "user", "forceIconSize", forceIconSize);
+				saveFile();
 
-void launch(XfcePanelPlugin* plugin)
-{
-	GtkWidget* dialog;
+				Dock::onPanelResize();
+			});
 
-	xfce_panel_plugin_block_menu(plugin);
+		iconSize.setup(g_key_file_get_integer(mFile, "user", "iconSize", NULL),
+			[](int iconSize) -> void {
+				g_key_file_set_integer(mFile, "user", "iconSize", iconSize);
+				saveFile();
 
-	dialog = xfce_titled_dialog_new_with_buttons(_("Docklike"),
-			GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))),
-			GTK_DIALOG_DESTROY_WITH_PARENT,
-			"gtk-help", GTK_RESPONSE_HELP, // Help button does nothing yet
-			"gtk-close", GTK_RESPONSE_OK,
-			NULL);
+				Dock::onPanelResize();
+			});
 
-	GtkWidget* showOnlyWorkspaceWindowsCheckbox = gtk_check_button_new_with_label("Show only windows from current workspace");
+		indicatorStyle.setup(g_key_file_get_integer(mFile, "user", "indicatorStyle", NULL),
+			[](int indicatorStyle) -> void {
+				g_key_file_set_integer(mFile, "user", "indicatorStyle", indicatorStyle);
+				saveFile();
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(showOnlyWorkspaceWindowsCheckbox), Plugin::mConfig->getShowOnlyWindowsInCurrentWorkspace());
+				Dock::redraw();
+			});
 
-	GtkBox* contents = GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
-	gtk_box_pack_start(contents, GTK_WIDGET(showOnlyWorkspaceWindowsCheckbox), true, true, 0);
+		noWindowsListIfSingle.setup(g_key_file_get_boolean(mFile, "user", "noWindowsListIfSingle", NULL),
+			[](bool noWindowsListIfSingle) -> void {
+				g_key_file_set_boolean(mFile, "user", "noWindowsListIfSingle", noWindowsListIfSingle);
+				saveFile();
+			});
 
-	g_signal_connect(G_OBJECT(showOnlyWorkspaceWindowsCheckbox), "toggled", G_CALLBACK(toggle_of_show_only_workspace_windows), NULL);
+		showOnlyWindowsInCurrentWorkspace.setup(g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", NULL),
+				[](bool showOnlyWindowsInCurrentWorkspace) -> void {
+					g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", showOnlyWindowsInCurrentWorkspace);
+					saveFile();
+				});
 
-	gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+		gchar** pinnedListBuffer = g_key_file_get_string_list(mFile, "user", "pinned", NULL, NULL);
+		pinnedAppList.setup(Help::Gtk::bufferToStdStringList(pinnedListBuffer),
+			[](std::list<std::string> list) -> void {
+				std::vector<char*> buf = Help::Gtk::stdToBufferStringList(list);
+				g_key_file_set_string_list(mFile, "user", "pinned", buf.data(), buf.size());
+				saveFile();
+			});
+		g_strfreev(pinnedListBuffer);
+	}
 
-	gtk_window_set_icon_name(GTK_WINDOW(dialog), "xfce4-settings");
-
-	g_object_set_data(G_OBJECT(plugin), "dialog", dialog);
-
-	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handler), NULL);
-
-	gtk_widget_show_all(dialog);
-
-}
-
-
-}
-
-
-
+	void saveFile()
+	{
+		g_key_file_save_to_file(mFile, mPath.c_str(), NULL);
+	}
+} // namespace Settings

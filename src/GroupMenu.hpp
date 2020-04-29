@@ -1,11 +1,10 @@
 #ifndef DOCK_BUTTON_MENU_HPP
 #define DOCK_BUTTON_MENU_HPP
 
-#include <iostream>
-
 #include <gtk/gtk.h>
 
 #include <list>
+#include <iostream>
 
 class Group;
 class GroupMenuItem;
@@ -13,26 +12,26 @@ class GroupWindow;
 
 class GroupMenu
 {
-	public:
-		GroupMenu(Group* dockButton);
+  public:
+	GroupMenu(Group* dockButton);
 
-		void add(GroupMenuItem& menuItem);
-		void remove(GroupMenuItem& menuItem);
+	void add(GroupMenuItem* menuItem);
+	void remove(GroupMenuItem* menuItem);
 
-		void popup();
-		void hide();
+	void popup();
+	void hide();
 
-		uint getPointerDistance();
+	uint getPointerDistance();
 
-		Group* mGroup;
+	Group* mGroup;
 
-		std::list<std::pair<GtkEventBox*, GroupWindow*> > mItemWindowPairs;
-		
-		GtkWidget* mWindow;
-		GtkWidget* mBox;
+	std::list<std::pair<GtkEventBox*, GroupWindow*> > mItemWindowPairs;
+	GtkWidget* mWindow;
+	GtkWidget* mBox;
 
-		bool mVisible;
-		bool mMouseHover;
+	bool mVisible;
+	bool mMouseHover;
 };
 
-#endif 
+#endif
+
