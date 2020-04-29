@@ -86,12 +86,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="c_onlyShowWindowsOnCurrentWorkspace">
-                        <property name="label" translatable="yes">Only show windows on current workspace</property>
+                      <object class="GtkToggleButton" id="c_onlyShowWindowsOnCurrentWorkspace">
+                        <property name="label" translatable="yes">Show only windows on current workspace</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
+                        <property name="receives_default">True</property>
                       </object>
                       <packing>
                         <property name="left_attach">0</property>
