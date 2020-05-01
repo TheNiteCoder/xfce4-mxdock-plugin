@@ -29,7 +29,9 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	mWindowsCount.setup(
 		0, [this]() -> uint {
 			uint count = 0;
-			mWindows.findIf([&count](GroupWindow* e) -> bool {
+			WnckWorkspace* workspace = wnck_screen_get_active_workspace(Wnck::mWnckScreen);
+			int currentWorkspaceID = wnck_workspace_get_number(workspace);
+			mWindows.findIf([&count, currentWorkspaceID](GroupWindow* e) -> bool {
 				if(e == NULL)
 				{
 					std::cerr << "found a NULL GroupWindow*" << std::endl;
@@ -39,7 +41,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 				{
 					if(Settings::showOnlyWindowsInCurrentWorkspace)
 					{
-						if(Wnck::windowInCurrentWorkspace(e->mWnckWindow))
+						if(e->mWorkspaceID == currentWorkspaceID)
 						{
 							++count;
 						}
@@ -189,6 +191,14 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 			return false;
 		}),
 		this);
+
+	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed",
+	G_CALLBACK(+[](WnckScreen* screen, WnckWorkspace* prevWorkspace, Group* me)
+	{
+		me->mWindowsCount.updateState();
+		me->mWindowsCount.forceFeedback();
+	}), this);
+
 
 	gtk_drag_dest_set(mButton, GTK_DEST_DEFAULT_DROP, entries, 1, GDK_ACTION_MOVE);
 
@@ -692,7 +702,7 @@ void Group::updateStyle()
 	{
 		for(auto pair : mGroupMenu.mItemWindowPairs)
 		{
-			if(Wnck::windowInCurrentWorkspace(pair.second->mWnckWindow))
+			if(pair.second->mWorkspaceID == Wnck::currentWorkspaceID())
 			{
 				gtk_widget_show(GTK_WIDGET(pair.first));
 			}
@@ -742,7 +752,7 @@ void Group::electNewTopWindow()
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
 			if(Settings::showOnlyWindowsInCurrentWorkspace)
 			{
-				return info->mGroupWindow->mGroup == this && Wnck::windowInCurrentWorkspace(info->mGroupWindow->mWnckWindow);
+				return info->mGroupWindow->mGroup == this && info->mGroupWindow->mWorkspaceID == Wnck::currentWorkspaceID();
 			}
 			else return info->mGroupWindow->mGroup == this;
 		});

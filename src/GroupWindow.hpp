@@ -41,11 +41,11 @@ class GroupWindow
 
 	// TODO disabled during upstream merge
  	bool mVisible;
- 	gulong mScreenWorkspaceChangedID;
  	WnckScreen* mScreen;
  	AppInfo* mAppInfo;
 	WnckWindow* mWnckWindow;
 	GroupMenuItem* mGroupMenuItem;
+	int mWorkspaceID;
 
 	void updateState(unsigned short state, unsigned short changeMask = USHRT_MAX);
 	unsigned short mState;

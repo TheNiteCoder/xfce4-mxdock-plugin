@@ -291,4 +291,11 @@ namespace Wnck
 			return menu;
 		}
 	}
+	
+	int currentWorkspaceID()
+	{
+		WnckWorkspace* workspace = wnck_screen_get_active_workspace(mWnckScreen);
+		return wnck_workspace_get_number(workspace);
+	}
+
 } // namespace Wnck

@@ -48,6 +48,8 @@ namespace Wnck
 		void activate(GroupWindow* groupWindow, guint32 timestamp);
 		void minimize(GroupWindow* groupWindow);
 
+		int currentWorkspaceID();
+
 		void setActiveWindow();
 	
 		bool windowInCurrentWorkspace(WnckWindow* window);
