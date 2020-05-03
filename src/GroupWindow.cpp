@@ -73,7 +73,6 @@ void GroupWindow::lateInit()
 	mGroupMenuItem->updateLabel();
 
 	mGroup->mWindowsCount.updateState();
-	mGroup->mWindowsCount.forceFeedback();
 }
 
 GroupWindow::~GroupWindow()

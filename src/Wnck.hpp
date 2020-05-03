@@ -8,7 +8,7 @@
 
 #include <map>
 
-#include "Group.hpp"
+#include "Group.hpp" 
 #include "GroupWindow.hpp"
 #include "Helpers.hpp"
 #include "Plugin.hpp"
@@ -52,7 +52,7 @@ namespace Wnck
 
 		void setActiveWindow();
 	
-		bool windowInCurrentWorkspace(WnckWindow* window);
+		// bool windowInCurrentWorkspace(WnckWindow* window);
 
 		GtkWidget* buildActionMenu(GroupWindow* groupWindow, Group* group);
 

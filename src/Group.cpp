@@ -822,7 +822,6 @@ void Group::onButtonPress(GdkEventButton* event)
 		{
 			AppInfos::launch(me->mAppInfo);
 			me->mWindowsCount.updateState();
-			me->mWindowsCount.forceFeedback();
 		}), this);
 
 		g_signal_connect(G_OBJECT(pinToggle), "activate",
@@ -897,14 +896,6 @@ void Group::onButtonPress(GdkEventButton* event)
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (child->button), FALSE);
 				}*/
 		}
-// void Group::onButtonPress(GdkEventButton* event)
-// {
-// 	if (event->button == 3)
-// 	{
-// 		GtkWidget* menu = Wnck::buildActionMenu(mWindows.get(mTopWindowIndex), this);
-// 
-// 		gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(mButton), NULL);
-// 		gtk_menu_popup_at_widget(GTK_MENU(menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent*)event);
 	}
 }
 
@@ -912,12 +903,8 @@ void Group::onButtonRelease(GdkEventButton* event)
 {
 	if (event->state & GDK_SHIFT_MASK || (mPinned && mWindowsCount == 0))
 	{
-		std::cerr << std::boolalpha << (mAppInfo == NULL) << std::noboolalpha << std::endl;
 		AppInfos::launch(mAppInfo);
 		mWindowsCount.updateState();
-		std::cerr << "updateState done" << std::endl;
-		mWindowsCount.forceFeedback();
-		std::cerr << "forceFeedback done" << std::endl;
 	}
 	else if (mActive && mActiveBeforePressed)
 	{
@@ -929,10 +916,12 @@ void Group::onButtonRelease(GdkEventButton* event)
  		{
  			guint32 timestamp = event->time;
  
- 			mWindows.forEach([&timestamp, this](GroupWindow* w)->void
- 			{
- 				if(w != mTopWindow) w->activate(timestamp);
- 			});
+			//  Disabled because it causes each window to be activated causing flickering as it changes worksapce
+			//  Also not sure of purpose
+//  			mWindows.forEach([&timestamp, this](GroupWindow* w)->void
+//  			{
+//  				if(w != mTopWindow) w->activate(timestamp);
+//  			});
  
  			mTopWindow->activate(timestamp);
  		}
