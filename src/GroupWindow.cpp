@@ -10,8 +10,6 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 	WnckWorkspace* workspace = wnck_window_get_workspace(mWnckWindow);
 	mWorkspaceID = wnck_workspace_get_number(workspace);
 
-	mVisible = (mWorkspaceID == Wnck::currentWorkspaceID());
-
 	std::string groupName = Wnck::getGroupName(this); //check here for exotic group association (like libreoffice)
 	mAppInfo = AppInfos::search(groupName);
 
@@ -135,4 +133,14 @@ void GroupWindow::updateState(ushort state, ushort changeMask)
 		else
 			gtk_widget_show(GTK_WIDGET(mGroupMenuItem->mItem));
 	}
+}
+
+bool GroupWindow::inCurrentWorkspace()
+{
+	return Wnck::inCurrentWorkspace(this);
+}
+
+bool GroupWindow::visible()
+{
+	return inCurrentWorkspace();
 }

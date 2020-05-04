@@ -3,8 +3,8 @@
 #ifndef WNCK_HPP
 #define WNCK_HPP
 
-#include <fcntl.h>
 #include <libwnck/libwnck.h>
+#include <fcntl.h>
 
 #include <map>
 
@@ -48,7 +48,9 @@ namespace Wnck
 		void activate(GroupWindow* groupWindow, guint32 timestamp);
 		void minimize(GroupWindow* groupWindow);
 
-		int currentWorkspaceID();
+		bool inCurrentWorkspace(GroupWindow* groupWindow);
+
+		void updateWorkspaceID();
 
 		void setActiveWindow();
 	

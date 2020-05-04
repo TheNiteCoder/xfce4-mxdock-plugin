@@ -67,7 +67,7 @@ namespace Theme
 
 		if (!gtk_css_provider_load_from_data(mCssProvider, cssStyle.c_str(), -1, NULL))
 		{
-			std::cerr << "ERROR: CSS LOAD FAILED !" << std::endl;
+			std::cerr << "mxdock: ERROR: CSS LOAD FAILED !" << std::endl;
 		}
 		else
 		{

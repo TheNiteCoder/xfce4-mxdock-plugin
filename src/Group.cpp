@@ -29,9 +29,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	mWindowsCount.setup(
 		0, [this]() -> uint {
 			uint count = 0;
-			WnckWorkspace* workspace = wnck_screen_get_active_workspace(Wnck::mWnckScreen);
-			int currentWorkspaceID = wnck_workspace_get_number(workspace);
-			mWindows.findIf([&count, currentWorkspaceID](GroupWindow* e) -> bool {
+			mWindows.findIf([&count](GroupWindow* e) -> bool {
 				if(e == NULL)
 				{
 					std::cerr << "found a NULL GroupWindow*" << std::endl;
@@ -41,7 +39,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 				{
 					if(Settings::showOnlyWindowsInCurrentWorkspace)
 					{
-						if(e->mWorkspaceID == currentWorkspaceID)
+						if(e->inCurrentWorkspace())
 						{
 							++count;
 						}
@@ -58,14 +56,11 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 		},
 		[this](uint windowsCount)->void {
 			updateStyle();
-			std::cerr << "updateStyle done" << std::endl;
 			electNewTopWindow();
-			std::cerr << "electNewTopWindow done" << std::endl;
 			if(windowsCount < 1 && !mPinned)
 			{
 				gtk_widget_hide(mButton);
 			}
-			std::cerr << "Hiding done" << std::endl;
 		}
 	);
 
@@ -702,7 +697,7 @@ void Group::updateStyle()
 	{
 		for(auto pair : mGroupMenu.mItemWindowPairs)
 		{
-			if(pair.second->mWorkspaceID == Wnck::currentWorkspaceID())
+			if(pair.second->inCurrentWorkspace())
 			{
 				gtk_widget_show(GTK_WIDGET(pair.first));
 			}
@@ -722,7 +717,6 @@ void Group::updateStyle()
 
 	int wCount = mWindowsCount;
 
-	std::cerr << "wCount: " << wCount << std::endl;
 
 	if (mPinned || wCount)
 		gtk_widget_show(mButton);
@@ -752,7 +746,7 @@ void Group::electNewTopWindow()
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
 			if(Settings::showOnlyWindowsInCurrentWorkspace)
 			{
-				return info->mGroupWindow->mGroup == this && info->mGroupWindow->mWorkspaceID == Wnck::currentWorkspaceID();
+				return info->mGroupWindow->mGroup == this && info->mGroupWindow->inCurrentWorkspace();
 			}
 			else return info->mGroupWindow->mGroup == this;
 		});
@@ -939,15 +933,44 @@ void Group::onScroll(GdkEventScroll* event)
 	}
 	else
 	{
+		std::list<Wnck::WindowInfo*> filtered = Wnck::mWindows;
+		if(Settings::showOnlyWindowsInCurrentWorkspace)
+		{
+			filtered.remove_if([](Wnck::WindowInfo* wi){
+				return !wi->mGroupWindow->inCurrentWorkspace();
+			});
+		}
+
+		auto current = std::find_if(filtered.begin(), filtered.end(), [=](Wnck::WindowInfo* wi){
+			return wi->mGroupWindow == mTopWindow;
+		});
+
+		if(current == filtered.end())
+			return;
+
 		// TODO make this work
-// 		if(event->direction == GDK_SCROLL_UP)
-// 		mTopWindowIndex = ++mTopWindowIndex % mWindows.size();
-// 		else if(event->direction == GDK_SCROLL_DOWN)
-// 		{
-// 			int size = mWindows.size();
-// 			mTopWindowIndex = (--mTopWindowIndex + size) % size;
-// 		}
-// 		mWindows.get(mTopWindowIndex)->activate(event->time);
+ 		if(event->direction == GDK_SCROLL_UP)
+		{
+			std::reverse(filtered.begin(), current);
+			auto closest = std::find_if(filtered.begin(), current, [this](Wnck::WindowInfo* wi){
+				return wi->mGroupWindow->mGroup == this;
+			});
+			if(closest == current)
+				return;
+			Wnck::WindowInfo* wi = *closest;
+			wi->mGroupWindow->activate(event->time);
+		}
+ 		else if(event->direction == GDK_SCROLL_DOWN)
+		{
+			if(++current == filtered.end()) return;
+			auto closest = std::find_if(current, filtered.end(), [this](Wnck::WindowInfo* wi){
+				return wi->mGroupWindow->mGroup == this;
+			});
+			if(closest == filtered.end())
+				return;
+			Wnck::WindowInfo* wi = *closest;
+			wi->mGroupWindow->activate(event->time);
+		}
 	}
 }
 

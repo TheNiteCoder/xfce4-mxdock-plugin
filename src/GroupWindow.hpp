@@ -37,6 +37,10 @@ class GroupWindow
 	void minimize();
 	void showMenu();
 
+	bool visible();
+
+	bool inCurrentWorkspace();
+
 	Group* mGroup;
 
 	// TODO disabled during upstream merge
