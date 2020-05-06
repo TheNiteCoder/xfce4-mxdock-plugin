@@ -37,20 +37,27 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 		this);
 
 	g_signal_connect(G_OBJECT(mWnckWindow), "state-changed",
-		G_CALLBACK(+[](WnckWindow* window, WnckWindowState changed_mask,
-						WnckWindowState new_state, GroupWindow* me) {
-			me->updateState(new_state, changed_mask);
-		}),
-		this);
+			G_CALLBACK(+[](WnckWindow* window, WnckWindowState changed_mask,
+					WnckWindowState new_state, GroupWindow* me) {
+				me->updateState(new_state, changed_mask);
+				}),
+			this);
 
 	g_signal_connect(G_OBJECT(mWnckWindow), "workspace-changed",
-	G_CALLBACK(+[](WnckWindow* window, GroupWindow* me)
-	{
-		WnckWorkspace* workspace = wnck_window_get_workspace(me->mWnckWindow);
-		me->mWorkspaceID = wnck_workspace_get_number(workspace);
-		me->mGroup->mWindowsCount.updateState();
-		me->mGroup->mWindowsCount.forceFeedback();
-	}), this);
+			G_CALLBACK(+[](WnckWindow* window, GroupWindow* me)
+				{
+				WnckWorkspace* workspace = wnck_window_get_workspace(me->mWnckWindow);
+				me->mWorkspaceID = wnck_workspace_get_number(workspace);
+				me->mGroup->mWindowsCount.updateState();
+				me->mGroup->mWindowsCount.forceFeedback();
+				}), this);
+
+// 	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed", 
+// 			G_CALLBACK(+[](WnckScreen* screen, GroupWindow* me){
+// 				me->mGroup->mWindowsCount.updateState();
+// 				me->mGroup->mWindowsCount.forceFeedback();
+// 				}), 
+// 			this);
 
 	// g_signal_connect(G_OBJECT(mWnckWindow), "workspace-changed", 
 	// G_CALLBACK(+[](WnckWindow* window, GroupWindow* me){
@@ -130,8 +137,11 @@ void GroupWindow::updateState(ushort state, ushort changeMask)
 
 		if (state & WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST)
 			gtk_widget_hide(GTK_WIDGET(mGroupMenuItem->mItem));
+		if(Settings::showOnlyWindowsInCurrentWorkspace && !inCurrentWorkspace())
+			gtk_widget_hide(GTK_WIDGET(mGroupMenuItem->mItem));
 		else
 			gtk_widget_show(GTK_WIDGET(mGroupMenuItem->mItem));
+
 	}
 }
 

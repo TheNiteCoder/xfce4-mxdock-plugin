@@ -16,9 +16,9 @@
 
 class GroupWindow;
 
-namespace Wnck
-{
+namespace Wnck {
 		void init();
+		void earlyInit();
 
 		class WindowInfo
 		{

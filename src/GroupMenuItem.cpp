@@ -114,3 +114,4 @@ void GroupMenuItem::updateIcon()
 	if (iconPixbuf != NULL)
 		gtk_image_set_from_pixbuf(GTK_IMAGE(mIcon), iconPixbuf);
 }
+

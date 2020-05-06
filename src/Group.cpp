@@ -55,6 +55,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 			return count;
 		},
 		[this](uint windowsCount)->void {
+			std::cerr << mAppInfo->name << " updating stuff" << std::endl;
 			updateStyle();
 			electNewTopWindow();
 			if(windowsCount < 1 && !mPinned)
@@ -188,11 +189,11 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 		this);
 
 	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed",
-	G_CALLBACK(+[](WnckScreen* screen, WnckWorkspace* prevWorkspace, Group* me)
-	{
-		me->mWindowsCount.updateState();
-		me->mWindowsCount.forceFeedback();
-	}), this);
+			G_CALLBACK(+[](WnckScreen* screen, WnckWorkspace* prevWorkspace, Group* me)
+				{
+				me->mWindowsCount.updateState();
+				me->mWindowsCount.forceFeedback();
+				}), this);
 
 
 	gtk_drag_dest_set(mButton, GTK_DEST_DEFAULT_DROP, entries, 1, GDK_ACTION_MOVE);
@@ -236,9 +237,11 @@ void Group::add(GroupWindow* window)
 
 	mGroupMenu.add(window->mGroupMenuItem);
 
+	mWindowsCount.updateState();
+	mWindowsCount.forceFeedback();
+
 	if (mWindowsCount == 1 && !mPinned)
 	{
-		std::cout << "REORDER OK:" << 0 << std::endl;
 		gtk_box_reorder_child(GTK_BOX(Dock::mBox), GTK_WIDGET(mButton), -1);
 	}
 }

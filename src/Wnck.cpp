@@ -100,10 +100,14 @@ namespace Wnck
 	} // namespace
 
 	// public:
+	
+	void earlyInit()
+	{
+		mWnckScreen = wnck_screen_get_default();
+	}
 
 	void init()
 	{
-		mWnckScreen = wnck_screen_get_default();
 		wnck_screen_force_update(mWnckScreen);
 
 		// signal connection
@@ -133,11 +137,11 @@ namespace Wnck
 					}),
 				NULL);
 
-		g_signal_connect(G_OBJECT(mWnckScreen), "active-workspace-changed", 
-				G_CALLBACK(+[](WnckScreen* screen) {
-					updateWorkspaceID();
-					}),
-				NULL);
+// 		g_signal_connect(G_OBJECT(mWnckScreen), "active-workspace-changed", 
+// 				G_CALLBACK(+[](WnckScreen* screen) {
+// 					updateWorkspaceID();
+// 					}),
+// 				NULL);
 
 		// already opened windows
 		for (GList* window_l = wnck_screen_get_windows(mWnckScreen);
@@ -297,6 +301,7 @@ namespace Wnck
 
 			return menu;
 		}
+		return nullptr;
 	}
 
 	void updateWorkspaceID()
@@ -307,6 +312,7 @@ namespace Wnck
 
 	bool inCurrentWorkspace(GroupWindow* groupWindow)
 	{
+		updateWorkspaceID();
 		return groupWindow->mWorkspaceID == mCurrentWorkspaceID;
 	}
 

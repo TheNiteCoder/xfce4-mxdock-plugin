@@ -21,6 +21,7 @@ namespace Plugin
 
 		Settings::init();
 		AppInfos::init();
+		Wnck::earlyInit(); // creates mWnckScreen for Dock::init for connecting of signals
 		Dock::init();
 		Wnck::init();
 		Theme::init();

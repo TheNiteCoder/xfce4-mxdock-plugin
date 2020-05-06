@@ -17,7 +17,8 @@
 class GroupWindow;
 
 class Group
-{ public: 
+{ 
+	public: 
 		enum DockPosition
 		{
 			Empty,
@@ -33,8 +34,7 @@ class Group
 			Focus,
 			Opened,
 			Many,
-			Hover
-		};
+			Hover };
 
 		Group(AppInfo* appInfo, bool pinned);
 		~Group();
