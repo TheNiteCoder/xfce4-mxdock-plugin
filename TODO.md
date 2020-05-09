@@ -1,11 +1,9 @@
 TODO :
 
-+ Orientation
-+ Setings UI
-+ Launcher settings UI
 + i18n
 + Support for special launcher like mailwatch, places, music player (via MPRIS), ...
-+ Show only windows from active workspace
++ Show only windows from active monitor or screen
++ Proper scroll support
 
 Exotics windows :
 - Libreoffice / Openoffice (imply changing the group of a window)
@@ -16,7 +14,11 @@ DONE :
 > + Basic workspaces managing
 > + Drop down list of windows
 > + Icon resizing
-> + Pinable dock buttons
+> + Pin-able dock buttons
 > + CSS class
 > + Button reordering (d n'd)
 > + XDG Desktop Files integration
+> + Settings UI
+> + Launcher settings UI
+> + Show only windows from active workspace
+> + Orientation
