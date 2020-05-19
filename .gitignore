@@ -30,3 +30,6 @@ src/.libs/
 .ccls
 compile_commands.json
 src/_gresources.c
+.ccls-cache/
+*.swp
+*.swo
