@@ -925,6 +925,8 @@ void Group::onButtonRelease(GdkEventButton* event)
 
 void Group::onScroll(GdkEventScroll* event)
 {
+	return; // feature not complete
+
 	if (mPinned && mWindowsCount == 0)
 		return;
 
