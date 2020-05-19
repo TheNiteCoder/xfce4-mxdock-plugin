@@ -160,7 +160,7 @@ namespace Wnck
 	{
 		WnckWindow* activeWindow = wnck_screen_get_active_window(mWnckScreen);
 		if (!WNCK_IS_WINDOW(activeWindow))
-			return nullptr;
+			return 0;
 
 		return wnck_window_get_xid(activeWindow);
 	}
@@ -204,7 +204,7 @@ namespace Wnck
 	void setActiveWindow()
 	{
 		gulong activeXID = getActiveWindowXID();
-		if (activeXID != nullptr)
+		if (activeXID != 0)
 		{
 			WindowInfo* info = *mWindows.begin();
 			info->mGroupWindow->onUnactivate();
