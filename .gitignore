@@ -33,3 +33,4 @@ src/_gresources.c
 .ccls-cache/
 *.swp
 *.swo
+*.plist
