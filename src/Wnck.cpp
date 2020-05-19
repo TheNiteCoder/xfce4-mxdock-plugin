@@ -182,9 +182,12 @@ namespace Wnck
 
 	void activate(GroupWindow* groupWindow, guint32 timestamp)
 	{
-		WnckWorkspace* workspace = wnck_window_get_workspace(groupWindow->mWnckWindow);
-		if (workspace != NULL)
-			wnck_workspace_activate(workspace, timestamp);
+		if(!groupWindow->inCurrentWorkspace())
+		{
+			WnckWorkspace* workspace = wnck_window_get_workspace(groupWindow->mWnckWindow);
+			if (workspace != NULL)
+				wnck_workspace_activate(workspace, timestamp);
+		}
 		wnck_window_activate(groupWindow->mWnckWindow, timestamp);
 	}
 

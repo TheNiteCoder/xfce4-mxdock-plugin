@@ -55,7 +55,6 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 			return count;
 		},
 		[this](uint windowsCount)->void {
-			std::cerr << mAppInfo->name << " updating stuff" << std::endl;
 			updateStyle();
 			electNewTopWindow();
 			if(windowsCount < 1 && !mPinned)
@@ -271,10 +270,10 @@ void Group::activate(guint32 timestamp)
 
 	GroupWindow* groupWindow = mTopWindow;
 
-	mWindows.forEach([&timestamp, &groupWindow](GroupWindow* w) -> void {
-		if (w != groupWindow)
-			w->activate(timestamp);
-	});
+// 	mWindows.forEach([&timestamp, &groupWindow](GroupWindow* w) -> void {
+// 		if (w != groupWindow)
+// 			w->activate(timestamp);
+// 	});
 
 	groupWindow->activate(timestamp);
 }
@@ -796,7 +795,6 @@ void Group::setTopWindow(GroupWindow* groupWindow)
 
 void Group::onButtonPress(GdkEventButton* event)
 {
-	std::cout << "PRESS MENU HERE:" << 1 << std::endl;
 
 	if(event->button != 3) return;
 
@@ -916,14 +914,6 @@ void Group::onButtonRelease(GdkEventButton* event)
  		if(mTopWindow != NULL)
  		{
  			guint32 timestamp = event->time;
- 
-			//  Disabled because it causes each window to be activated causing flickering as it changes worksapce
-			//  Also not sure of purpose
-//  			mWindows.forEach([&timestamp, this](GroupWindow* w)->void
-//  			{
-//  				if(w != mTopWindow) w->activate(timestamp);
-//  			});
- 
  			mTopWindow->activate(timestamp);
  		}
  	}
@@ -948,6 +938,11 @@ void Group::onScroll(GdkEventScroll* event)
 			});
 		}
 
+		if(event->direction == GDK_SCROLL_UP)
+		{
+			std::reverse(filtered.begin(), filtered.end());
+		}
+
 		auto current = std::find_if(filtered.begin(), filtered.end(), [=](Wnck::WindowInfo* wi){
 			return wi->mGroupWindow == mTopWindow;
 		});
@@ -955,29 +950,42 @@ void Group::onScroll(GdkEventScroll* event)
 		if(current == filtered.end())
 			return;
 
+		std::rotate(filtered.begin(), current, filtered.end());
+
+		auto nextWindow = std::find_if(filtered.begin(), filtered.end(), [this](Wnck::WindowInfo* wi){
+			return wi->mGroupWindow->mGroup == this;
+		});
+		if(nextWindow == filtered.end())
+			return;
+		Wnck::WindowInfo* wi = *nextWindow;
+		wi->mGroupWindow->activate(event->time);
+		setTopWindow(wi->mGroupWindow);
+
 		// TODO make this work
- 		if(event->direction == GDK_SCROLL_UP)
-		{
-			std::reverse(filtered.begin(), current);
-			auto closest = std::find_if(filtered.begin(), current, [this](Wnck::WindowInfo* wi){
-				return wi->mGroupWindow->mGroup == this;
-			});
-			if(closest == current)
-				return;
-			Wnck::WindowInfo* wi = *closest;
-			wi->mGroupWindow->activate(event->time);
-		}
- 		else if(event->direction == GDK_SCROLL_DOWN)
-		{
-			if(++current == filtered.end()) return;
-			auto closest = std::find_if(current, filtered.end(), [this](Wnck::WindowInfo* wi){
-				return wi->mGroupWindow->mGroup == this;
-			});
-			if(closest == filtered.end())
-				return;
-			Wnck::WindowInfo* wi = *closest;
-			wi->mGroupWindow->activate(event->time);
-		}
+//  		if(event->direction == GDK_SCROLL_UP)
+// 		{
+// 			std::reverse(filtered.begin(), current);
+// 			auto closest = std::find_if(filtered.begin(), current, [this](Wnck::WindowInfo* wi){
+// 				return wi->mGroupWindow->mGroup == this;
+// 			});
+// 			if(closest == current)
+// 				return;
+// 			Wnck::WindowInfo* wi = *closest;
+// 			wi->mGroupWindow->activate(event->time);
+// 			setTopWindow(wi->mGroupWindow);
+// 		}
+//  		else if(event->direction == GDK_SCROLL_DOWN)
+// 		{
+// 			if(++current == filtered.end()) return;
+// 			auto closest = std::find_if(current, filtered.end(), [this](Wnck::WindowInfo* wi){
+// 				return wi->mGroupWindow->mGroup == this;
+// 			});
+// 			if(closest == filtered.end())
+// 				return;
+// 			Wnck::WindowInfo* wi = *closest;
+// 			wi->mGroupWindow->activate(event->time);
+// 			setTopWindow(wi->mGroupWindow);
+// 		}
 	}
 }
 
