@@ -105,8 +105,8 @@ namespace Help
 		{
 			std::list<std::string> ret;
 
-			if (stringList != NULL)
-				for (int i = 0; stringList[i] != NULL; ++i)
+			if (stringList != nullptr)
+				for (int i = 0; stringList[i] != nullptr; ++i)
 					ret.push_back(stringList[i]);
 
 			return ret;
@@ -144,8 +144,8 @@ namespace Help
 
 		Timeout::Timeout()
 		{
-			mDuration = mTimeoutId = NULL;
-			// mFunction = NULL;
+			mDuration = mTimeoutId = nullptr;
+			// mFunction = nullptr;
 		}
 
 		void Timeout::setup(uint ms, std::function<bool()> function)
@@ -161,7 +161,7 @@ namespace Help
 				bool cont = me->mFunction();
 
 				if (!cont)
-					me->mTimeoutId = NULL;
+					me->mTimeoutId = nullptr;
 				return cont;
 			}),
 				this);
@@ -169,10 +169,10 @@ namespace Help
 
 		void Timeout::stop()
 		{
-			if (mTimeoutId != NULL)
+			if (mTimeoutId != nullptr)
 			{
 				g_source_remove(mTimeoutId);
-				mTimeoutId = NULL;
+				mTimeoutId = nullptr;
 			}
 		}
 	} // namespace Gtk

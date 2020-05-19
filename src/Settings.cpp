@@ -17,9 +17,9 @@ namespace Settings
 		mPath = xfce_panel_plugin_save_location(Plugin::mXfPlugin, true);
 
 		mFile = g_key_file_new();
-		g_key_file_load_from_file(mFile, mPath.c_str(), G_KEY_FILE_NONE, NULL);
+		g_key_file_load_from_file(mFile, mPath.c_str(), G_KEY_FILE_NONE, nullptr);
 
-		forceIconSize.setup(g_key_file_get_boolean(mFile, "user", "forceIconSize", NULL),
+		forceIconSize.setup(g_key_file_get_boolean(mFile, "user", "forceIconSize", nullptr),
 			[](bool forceIconSize) -> void {
 				g_key_file_set_boolean(mFile, "user", "forceIconSize", forceIconSize);
 				saveFile();
@@ -27,7 +27,7 @@ namespace Settings
 				Dock::onPanelResize();
 			});
 
-		iconSize.setup(g_key_file_get_integer(mFile, "user", "iconSize", NULL),
+		iconSize.setup(g_key_file_get_integer(mFile, "user", "iconSize", nullptr),
 			[](int iconSize) -> void {
 				g_key_file_set_integer(mFile, "user", "iconSize", iconSize);
 				saveFile();
@@ -35,7 +35,7 @@ namespace Settings
 				Dock::onPanelResize();
 			});
 
-		indicatorStyle.setup(g_key_file_get_integer(mFile, "user", "indicatorStyle", NULL),
+		indicatorStyle.setup(g_key_file_get_integer(mFile, "user", "indicatorStyle", nullptr),
 			[](int indicatorStyle) -> void {
 				g_key_file_set_integer(mFile, "user", "indicatorStyle", indicatorStyle);
 				saveFile();
@@ -43,19 +43,19 @@ namespace Settings
 				Dock::redraw();
 			});
 
-		noWindowsListIfSingle.setup(g_key_file_get_boolean(mFile, "user", "noWindowsListIfSingle", NULL),
+		noWindowsListIfSingle.setup(g_key_file_get_boolean(mFile, "user", "noWindowsListIfSingle", nullptr),
 			[](bool noWindowsListIfSingle) -> void {
 				g_key_file_set_boolean(mFile, "user", "noWindowsListIfSingle", noWindowsListIfSingle);
 				saveFile();
 			});
 
-		showOnlyWindowsInCurrentWorkspace.setup(g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", NULL),
+		showOnlyWindowsInCurrentWorkspace.setup(g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", nullptr),
 				[](bool showOnlyWindowsInCurrentWorkspace) -> void {
 					g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", showOnlyWindowsInCurrentWorkspace);
 					saveFile();
 				});
 
-		gchar** pinnedListBuffer = g_key_file_get_string_list(mFile, "user", "pinned", NULL, NULL);
+		gchar** pinnedListBuffer = g_key_file_get_string_list(mFile, "user", "pinned", nullptr, nullptr);
 		pinnedAppList.setup(Help::Gtk::bufferToStdStringList(pinnedListBuffer),
 			[](std::list<std::string> list) -> void {
 				std::vector<char*> buf = Help::Gtk::stdToBufferStringList(list);
@@ -67,6 +67,6 @@ namespace Settings
 
 	void saveFile()
 	{
-		g_key_file_save_to_file(mFile, mPath.c_str(), NULL);
+		g_key_file_save_to_file(mFile, mPath.c_str(), nullptr);
 	}
 } // namespace Settings

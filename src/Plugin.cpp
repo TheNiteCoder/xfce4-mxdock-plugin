@@ -41,28 +41,28 @@ namespace Plugin
 				Dock::onPanelResize(size);
 				return true;
 			}),
-			NULL);
+			nullptr);
 
 		g_signal_connect(G_OBJECT(GTK_WIDGET(mXfPlugin)), "orientation-changed",
 		G_CALLBACK(+[](XfcePanelPlugin *plugin, GtkOrientation orientation){
 			Dock::onPanelOrientationChange(orientation);
-		}), NULL);
+		}), nullptr);
 
 		g_signal_connect(G_OBJECT(GTK_WIDGET(mXfPlugin)), "screen-position-changed",
 		G_CALLBACK(+[](XfcePanelPlugin* plugin, XfceScreenPosition pos){
 			Dock::onScreenPositionChange(pos);
-		}), NULL);
+		}), nullptr);
 
 		g_signal_connect(G_OBJECT(mXfPlugin), "configure-plugin",
 			G_CALLBACK(+[](XfcePanelPlugin* plugin) {
 				SettingsDialog::popup();
 			}),
-			NULL);
+			nullptr);
 	}
 
 	void getPointerPosition(gint* x, gint* y)
 	{
-		gdk_device_get_position(mPointer, NULL, x, y);
+		gdk_device_get_position(mPointer, nullptr, x, y);
 	}
 
 } // namespace Plugin

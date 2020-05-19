@@ -7,12 +7,12 @@ Config::Config(std::string path)
 	std::cout << "SAVEPATH:" << path << std::endl;
 
 	mFile = g_key_file_new();
-	g_key_file_load_from_file(mFile, mPath.c_str(), G_KEY_FILE_NONE, NULL);
+	g_key_file_load_from_file(mFile, mPath.c_str(), G_KEY_FILE_NONE, nullptr);
 }
 
 void Config::save()
 {
-	g_key_file_save_to_file(mFile, mPath.c_str(), NULL);
+	g_key_file_save_to_file(mFile, mPath.c_str(), nullptr);
 }
 
 void Config::setPinned(std::list<std::string> pinnedApps)
@@ -27,10 +27,10 @@ void Config::setPinned(std::list<std::string> pinnedApps)
 std::list<std::string> Config::getPinned()
 {
 	std::list<std::string> ret;
-	gchar** clist = g_key_file_get_string_list(mFile, "user", "pinned", NULL, NULL);
+	gchar** clist = g_key_file_get_string_list(mFile, "user", "pinned", nullptr, nullptr);
 
-	if(clist != NULL)
-		for(int i = 0; clist[i] != NULL; ++i)
+	if(clist != nullptr)
+		for(int i = 0; clist[i] != nullptr; ++i)
 			ret.push_back(clist[i]);
 
 	g_strfreev(clist);
@@ -44,6 +44,6 @@ void Config::setShowOnlyWindowsInCurrentWorkspace(bool value)
 
 bool Config::getShowOnlyWindowsInCurrentWorkspace()
 {
-	gboolean gbool = g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", NULL);
+	gboolean gbool = g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", nullptr);
 	return (gbool == TRUE) ? true : false;
 }

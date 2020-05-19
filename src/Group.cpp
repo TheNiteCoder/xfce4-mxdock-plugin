@@ -15,14 +15,14 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	gtk_style_context_add_class(gtk_widget_get_style_context(mButton), "group");
 	gtk_style_context_add_class(gtk_widget_get_style_context(mButton), "flat");
 
-	mIconPixbuf = NULL;
+	mIconPixbuf = nullptr;
 
 	mAppInfo = appInfo;
 	mPinned = pinned;
 	mActive = false;
 
 	mActiveBeforePressed = false;
-	mTopWindow = NULL;
+	mTopWindow = nullptr;
 
 	mSFocus = mSOpened = mSMany = mSHover = false;
 
@@ -30,9 +30,9 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 		0, [this]() -> uint {
 			uint count = 0;
 			mWindows.findIf([&count](GroupWindow* e) -> bool {
-				if(e == NULL)
+				if(e == nullptr)
 				{
-					std::cerr << "found a NULL GroupWindow*" << std::endl;
+					std::cerr << "found a nullptr GroupWindow*" << std::endl;
 					return false;
 				}
 				if (!e->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST))
@@ -211,12 +211,12 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	gtk_widget_add_events(mButton, GDK_SCROLL_MASK);
 	gtk_button_set_always_show_image(GTK_BUTTON(mButton), true);
 
-	if(mAppInfo != NULL && !mAppInfo->icon.empty())
+	if(mAppInfo != nullptr && !mAppInfo->icon.empty())
 	{
 		GtkWidget* icon;
 
 		if (mAppInfo->icon[0] == '/')
-			mIconPixbuf = gdk_pixbuf_new_from_file(mAppInfo->icon.c_str(), NULL);
+			mIconPixbuf = gdk_pixbuf_new_from_file(mAppInfo->icon.c_str(), nullptr);
 		else
 		{
 			icon = gtk_image_new_from_icon_name(mAppInfo->icon.c_str(), GTK_ICON_SIZE_BUTTON);
@@ -284,7 +284,7 @@ void Group::resize()
 
 	GtkWidget* img;
 
-	if (mIconPixbuf != NULL)
+	if (mIconPixbuf != nullptr)
 	{
 		GdkPixbuf* pixbuf = gdk_pixbuf_scale_simple(mIconPixbuf, Dock::mIconSize, Dock::mIconSize, GDK_INTERP_HYPER);
 		GtkWidget* icon = gtk_image_new_from_pixbuf(pixbuf);
@@ -747,7 +747,7 @@ void Group::electNewTopWindow()
 {
 	if(mWindowsCount > 0)
 	{
-		GroupWindow* newTopWindow = NULL;
+		GroupWindow* newTopWindow = nullptr;
 
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
 			if(Settings::showOnlyWindowsInCurrentWorkspace)
@@ -759,7 +759,7 @@ void Group::electNewTopWindow()
 
 		if(iter == Wnck::mWindows.end())
 		{
-			newTopWindow = NULL;
+			newTopWindow = nullptr;
 		}
 		else
 		{
@@ -770,7 +770,7 @@ void Group::electNewTopWindow()
 	}
 	else
 	{
-		setTopWindow(NULL);
+		setTopWindow(nullptr);
 	}
 }
 
@@ -798,7 +798,7 @@ void Group::onButtonPress(GdkEventButton* event)
 
 	if(event->button != 3) return;
 
-	if(mWindowsCount == 0 || mTopWindow == NULL)
+	if(mWindowsCount == 0 || mTopWindow == nullptr)
 	{
 		GtkWidget* menu = gtk_menu_new();
 
@@ -833,12 +833,12 @@ void Group::onButtonPress(GdkEventButton* event)
 
 		}), this);
 
-		gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), NULL);
+		gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), nullptr);
 		gtk_menu_popup_at_widget (GTK_MENU (menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent *) event);
 	}
 	else
 	{
-		if(mTopWindow != NULL)
+		if(mTopWindow != nullptr)
 		{
 
 			GtkWidget* menu = Wnck::buildActionMenu(mTopWindow, mTopWindow->mGroup);
@@ -875,7 +875,7 @@ void Group::onButtonPress(GdkEventButton* event)
 
 			}), this);
 
-			gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), NULL);
+			gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), nullptr);
 
 			gtk_menu_popup_at_widget (GTK_MENU (menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent *) event);
 
@@ -907,11 +907,15 @@ void Group::onButtonRelease(GdkEventButton* event)
 	}
 	else if (mActive && mActiveBeforePressed)
 	{
-		if(mTopWindow != NULL) mTopWindow->minimize();
+		if(mTopWindow != nullptr) mTopWindow->minimize();
 	}
  	else
  	{
- 		if(mTopWindow != NULL)
+		if(mTopWindow == nullptr)
+		{
+			electNewTopWindow();
+		}
+ 		if(mTopWindow != nullptr)
  		{
  			guint32 timestamp = event->time;
  			mTopWindow->activate(timestamp);
@@ -926,7 +930,7 @@ void Group::onScroll(GdkEventScroll* event)
 
 	if (!mActive)
 	{
-		if(mTopWindow != NULL) mTopWindow->activate(event->time);
+		if(mTopWindow != nullptr) mTopWindow->activate(event->time);
 	}
 	else
 	{
@@ -993,12 +997,12 @@ bool Group::onDragMotion(GtkWidget* widget, GdkDragContext* context, int x, int 
 {
 	GdkModifierType mask;
 
-	gdk_window_get_pointer(gtk_widget_get_window(widget), NULL, NULL, &mask);
+	gdk_window_get_pointer(gtk_widget_get_window(widget), nullptr, nullptr, &mask);
 	if (mask & GDK_CONTROL_MASK)
 		gtk_drag_cancel(context);
 
 	GList* tmp_list = gdk_drag_context_list_targets(context);
-	if (tmp_list != NULL)
+	if (tmp_list != nullptr)
 	{
 		char* name = gdk_atom_name(GDK_POINTER_TO_ATOM(tmp_list->data));
 		std::string target = name;
@@ -1008,7 +1012,7 @@ bool Group::onDragMotion(GtkWidget* widget, GdkDragContext* context, int x, int 
 		{
 			if (mWindowsCount > 0)
 			{
-				if(mTopWindow != NULL)
+				if(mTopWindow != nullptr)
 				{
 					mTopWindow->activate(time);
 

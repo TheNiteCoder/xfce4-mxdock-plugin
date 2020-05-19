@@ -27,7 +27,7 @@ namespace SettingsDialog
 				G_CALLBACK(+[](GtkDialog* dialog){
 					xfce_panel_plugin_unblock_menu(Plugin::mXfPlugin);
 					}), 
-				NULL);
+				nullptr);
 
 		GObject* noListForSingleWindow = gtk_builder_get_object(builder, "c_noListForSingleWindow");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(noListForSingleWindow), Settings::noWindowsListIfSingle);
@@ -35,7 +35,7 @@ namespace SettingsDialog
 			G_CALLBACK(+[](GtkToggleButton* noWindowsListIfSingle) {
 				Settings::noWindowsListIfSingle.set(gtk_toggle_button_get_active(noWindowsListIfSingle));
 			}),
-			NULL);
+			nullptr);
 
 		GObject* showOnlyWindowsInCurrentWorkspace = gtk_builder_get_object(builder, "c_onlyShowWindowsOnCurrentWorkspace");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(showOnlyWindowsInCurrentWorkspace), Settings::showOnlyWindowsInCurrentWorkspace);
@@ -44,7 +44,7 @@ namespace SettingsDialog
 				Settings::showOnlyWindowsInCurrentWorkspace.set(gtk_toggle_button_get_active(showOnlyWindowsInCurrentWorkspace));
 				Dock::updateGroupsWindowCount(); // this should trigger the windows to hide or show
 			}),
-			NULL);
+			nullptr);
 
 		GObject* indicatorStyle = gtk_builder_get_object(builder, "co_indicatorStyle");
 		gtk_combo_box_set_active(GTK_COMBO_BOX(indicatorStyle), Settings::indicatorStyle);
@@ -52,7 +52,7 @@ namespace SettingsDialog
 			G_CALLBACK(+[](GtkComboBox* indicatorStyle) {
 				Settings::indicatorStyle.set(gtk_combo_box_get_active(GTK_COMBO_BOX(indicatorStyle)));
 			}),
-			NULL);
+			nullptr);
 
 		GObject* iconSize = gtk_builder_get_object(builder, "e_iconSize");
 		gtk_entry_set_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(iconSize))), std::to_string(Settings::iconSize).c_str());
@@ -64,7 +64,7 @@ namespace SettingsDialog
 				gtk_entry_set_text(entry, value.c_str());
 				Settings::iconSize.set(std::stoi("0" + value));
 			}),
-			NULL);
+			nullptr);
 
 		GObject* forceIconSize = gtk_builder_get_object(builder, "c_forceIconSize");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(forceIconSize), Settings::forceIconSize);
@@ -92,7 +92,7 @@ namespace SettingsDialog
 			G_CALLBACK(+[](GtkComboBox* indicatorStyle) {
 				Settings::indicatorStyle.set(gtk_combo_box_get_active(GTK_COMBO_BOX(indicatorStyle)));
 			}),
-			NULL);
+			nullptr);
 
 		gtk_grid_attach(grid, indicatorStyle, 1, 1, 1, 1);
 
@@ -107,7 +107,7 @@ namespace SettingsDialog
 			G_CALLBACK(+[](GtkToggleButton* iconSizeToggle) {
 				Settings::forceIconSize.set(gtk_toggle_button_get_active(iconSizeToggle));
 			}),
-			NULL);
+			nullptr);
 
 		GtkWidget* iconSizeValue = gtk_combo_box_text_new_with_entry();
 		gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(iconSizeValue), 5);
@@ -126,7 +126,7 @@ namespace SettingsDialog
 				gtk_entry_set_text(entry, value.c_str());
 				Settings::iconSize.set(std::stoi("0" + value));
 			}),
-			NULL);
+			nullptr);
 
 		gtk_grid_attach(grid, iconSizeValue, 1, 2, 1, 1);
 

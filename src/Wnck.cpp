@@ -66,10 +66,10 @@ namespace Wnck
 		{
 			// Wnck method const char *
 			const char* buf = wnck_window_get_class_group_name(wnckWindow);
-			if (buf != NULL && buf[0] != '\0')
+			if (buf != nullptr && buf[0] != '\0')
 				return buf;
 			buf = wnck_window_get_class_instance_name(wnckWindow);
-			if (buf != NULL && buf[0] != '\0')
+			if (buf != nullptr && buf[0] != '\0')
 				return buf;
 
 			// proc/{pid}/cmdline method
@@ -117,7 +117,7 @@ namespace Wnck
 					WindowInfo* ptr = new WindowInfo(wnckWindow);
 					mWindows.push_back(ptr);
 					ptr->construct(); // construct WindowInfo after it has been added to the array
-					}), NULL);
+					}), nullptr);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-closed",
 				G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
@@ -129,23 +129,23 @@ namespace Wnck
 					WindowInfo* ptr = *positer;
 					mWindows.erase(positer);
 					delete ptr;
-					}), NULL);
+					}), nullptr);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "active-window-changed",
 				G_CALLBACK(+[](WnckScreen* screen, WnckWindow* previousActiveWindow) {
 					setActiveWindow();
 					}),
-				NULL);
+				nullptr);
 
 // 		g_signal_connect(G_OBJECT(mWnckScreen), "active-workspace-changed", 
 // 				G_CALLBACK(+[](WnckScreen* screen) {
 // 					updateWorkspaceID();
 // 					}),
-// 				NULL);
+// 				nullptr);
 
 		// already opened windows
 		for (GList* window_l = wnck_screen_get_windows(mWnckScreen);
-				window_l != NULL;
+				window_l != nullptr;
 				window_l = window_l->next)
 		{
 			WnckWindow* wnckWindow = WNCK_WINDOW(window_l->data);
@@ -160,7 +160,7 @@ namespace Wnck
 	{
 		WnckWindow* activeWindow = wnck_screen_get_active_window(mWnckScreen);
 		if (!WNCK_IS_WINDOW(activeWindow))
-			return NULL;
+			return nullptr;
 
 		return wnck_window_get_xid(activeWindow);
 	}
@@ -185,7 +185,7 @@ namespace Wnck
 		if(!groupWindow->inCurrentWorkspace())
 		{
 			WnckWorkspace* workspace = wnck_window_get_workspace(groupWindow->mWnckWindow);
-			if (workspace != NULL)
+			if (workspace != nullptr)
 				wnck_workspace_activate(workspace, timestamp);
 		}
 		wnck_window_activate(groupWindow->mWnckWindow, timestamp);
@@ -204,7 +204,7 @@ namespace Wnck
 	void setActiveWindow()
 	{
 		gulong activeXID = getActiveWindowXID();
-		if (activeXID != NULL)
+		if (activeXID != nullptr)
 		{
 			WindowInfo* info = *mWindows.begin();
 			info->mGroupWindow->onUnactivate();
@@ -229,9 +229,9 @@ namespace Wnck
 	bool windowInCurrentWorkspace(WnckWindow* window)
 	{
 		WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
-		if(currentWorkspace == NULL) return true;
+		if(currentWorkspace == nullptr) return true;
 		WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
-		if(windowWorkspace == NULL) return true;
+		if(windowWorkspace == nullptr) return true;
 		int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
 		int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
 		return windowWorkspaceNumber == currentWorkspaceNumber;
@@ -248,13 +248,13 @@ namespace Wnck
 
 	GtkWidget* buildActionMenu(GroupWindow* groupWindow, Group* group)
 	{
-		GtkWidget* menu = (groupWindow != NULL) ? wnck_action_menu_new(groupWindow->mWnckWindow) : gtk_menu_new();
+		GtkWidget* menu = (groupWindow != nullptr) ? wnck_action_menu_new(groupWindow->mWnckWindow) : gtk_menu_new();
 
-		AppInfo* appInfo = (groupWindow != NULL) ? groupWindow->mGroup->mAppInfo : group->mAppInfo;
+		AppInfo* appInfo = (groupWindow != nullptr) ? groupWindow->mGroup->mAppInfo : group->mAppInfo;
 
 		if (!appInfo->path.empty())
 		{
-			GtkWidget* launchAnother = gtk_menu_item_new_with_label((groupWindow != NULL) ? "Launch another" : "Launch");
+			GtkWidget* launchAnother = gtk_menu_item_new_with_label((groupWindow != nullptr) ? "Launch another" : "Launch");
 
 			gtk_widget_show(launchAnother);
 
@@ -266,7 +266,7 @@ namespace Wnck
 						}),
 					appInfo);
 
-			if (group != NULL)
+			if (group != nullptr)
 			{
 				GtkWidget* separator = gtk_separator_menu_item_new();
 				GtkWidget* pinToggle = gtk_menu_item_new_with_label(group->mPinned ? "Unpin" : "Pin");
@@ -287,7 +287,7 @@ namespace Wnck
 						group);
 			}
 
-			if (group != NULL && group->mWindowsCount > 1)
+			if (group != nullptr && group->mWindowsCount > 1)
 			{
 				GtkWidget* closeAll = gtk_menu_item_new_with_label("Close All");
 				gtk_widget_show(closeAll);

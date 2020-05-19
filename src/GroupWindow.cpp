@@ -14,7 +14,7 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 	mAppInfo = AppInfos::search(groupName);
 
 	std::cout << "SEARCHING GROUPNAME:" << groupName << std::endl;
-	if (mAppInfo == NULL)
+	if (mAppInfo == nullptr)
 		std::cout << "NO MATCH:" << 0 << std::endl;
 	else
 	{

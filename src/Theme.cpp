@@ -15,7 +15,7 @@ namespace Theme
 		mStyleContext = gtk_widget_get_style_context(Dock::mBox);
 
 		g_signal_connect(G_OBJECT(mStyleContext), "changed",
-			G_CALLBACK(+[](GtkStyleContext* stylecontext) { load(); }), NULL);
+			G_CALLBACK(+[](GtkStyleContext* stylecontext) { load(); }), nullptr);
 
 		load();
 	}
@@ -65,7 +65,7 @@ namespace Theme
     color:@dl_menu_color_hover; border:none; }" "box { margin:0; padding:0; }"
     ".drop { border-left:5px solid red; }";*/
 
-		if (!gtk_css_provider_load_from_data(mCssProvider, cssStyle.c_str(), -1, NULL))
+		if (!gtk_css_provider_load_from_data(mCssProvider, cssStyle.c_str(), -1, nullptr))
 		{
 			std::cerr << "mxdock: ERROR: CSS LOAD FAILED !" << std::endl;
 		}

@@ -20,7 +20,7 @@ namespace AppInfos
 	void findXDGDirectories()
 	{
 		char* var = getenv("XDG_DATA_DIRS");
-		if (var != NULL && var[0] != '\0')
+		if (var != nullptr && var[0] != '\0')
 		{
 			Help::String::split(var, mXdgDataDirs, ':');
 		}
@@ -47,19 +47,19 @@ namespace AppInfos
 
 		GDesktopAppInfo* gAppInfo = g_desktop_app_info_new_from_filename(path.c_str());
 
-		if (gAppInfo == NULL)
+		if (gAppInfo == nullptr)
 			return;
 
 		pthread_mutex_lock(&AppInfosLock);
 
 		std::string icon;
 		char* icon_ = g_desktop_app_info_get_string(gAppInfo, "Icon");
-		if (icon_ != NULL)
+		if (icon_ != nullptr)
 			icon = Help::String::trim(icon_);
 
 		std::string name;
 		char* name_ = g_desktop_app_info_get_string(gAppInfo, "Name");
-		if (name_ != NULL)
+		if (name_ != nullptr)
 			name = name_;
 
 		AppInfo* info = new AppInfo({path, icon, name});
@@ -80,7 +80,7 @@ namespace AppInfos
 
 		std::string exec;
 		char* exec_ = g_desktop_app_info_get_string(gAppInfo, "Exec");
-		if (exec_ != NULL && exec_[0] != '\0')
+		if (exec_ != nullptr && exec_[0] != '\0')
 		{
 			std::string execLine = Help::String::toLowercase(Help::String::pathBasename(Help::String::trim(exec_)));
 
@@ -94,7 +94,7 @@ namespace AppInfos
 
 		std::string wmclass;
 		char* wmclass_ = g_desktop_app_info_get_string(gAppInfo, "StartupWMClass");
-		if (wmclass_ != NULL && wmclass_[0] != '\0')
+		if (wmclass_ != nullptr && wmclass_[0] != '\0')
 		{
 			wmclass = Help::String::toLowercase(Help::String::trim(wmclass_));
 
@@ -138,7 +138,7 @@ namespace AppInfos
 		pthread_t thread_store;
 		std::string* arg = new std::string(xdgDir);
 
-		pthread_create(&thread_store, NULL, watchXDGDirectory, arg);
+		pthread_create(&thread_store, nullptr, watchXDGDirectory, arg);
 	}
 
 	void loadXDGDirectories()
@@ -148,12 +148,12 @@ namespace AppInfos
 			std::cout << "XDGDirectories:" << xdgDir << std::endl;
 
 			DIR* directory = opendir(xdgDir.c_str());
-			if (directory == NULL)
+			if (directory == nullptr)
 				continue;
 
 			struct dirent* entry;
 			std::list<std::string> matches;
-			while ((entry = readdir(directory)) != NULL)
+			while ((entry = readdir(directory)) != nullptr)
 			{
 				std::string filename = entry->d_name;
 
@@ -166,7 +166,7 @@ namespace AppInfos
 
 	void init()
 	{
-		pthread_mutex_init(&AppInfosLock, NULL);
+		pthread_mutex_init(&AppInfosLock, nullptr);
 
 		findXDGDirectories();
 		loadXDGDirectories();
@@ -175,7 +175,7 @@ namespace AppInfos
 	AppInfo* search(std::string id)
 	{
 		AppInfo* ai = mAppInfoIds.get(id);
-		if (ai != NULL)
+		if (ai != nullptr)
 			return ai;
 
 		uint pos = id.find(' ');
@@ -184,12 +184,12 @@ namespace AppInfos
 			id = id.substr(0, pos);
 
 			ai = mAppInfoIds.get(id);
-			if (ai != NULL)
+			if (ai != nullptr)
 				return ai;
 		}
 
 		ai = mAppInfoNames.get(id);
-		if (ai != NULL)
+		if (ai != nullptr)
 			return ai;
 
 		pos = id.find(' ');
@@ -198,24 +198,24 @@ namespace AppInfos
 			id = id.substr(0, pos);
 
 			ai = mAppInfoNames.get(id);
-			if (ai != NULL)
+			if (ai != nullptr)
 				return ai;
 		}
 
 		gchar*** gioPath = g_desktop_app_info_search(id.c_str());
 
-		if (gioPath != NULL && gioPath[0] != NULL && gioPath[0][0] != NULL && gioPath[0][0][0] != '\0')
+		if (gioPath != nullptr && gioPath[0] != nullptr && gioPath[0][0] != nullptr && gioPath[0][0][0] != '\0')
 		{
 			std::string gioId = gioPath[0][0];
 			gioId = Help::String::toLowercase(gioId.substr(0, gioId.size() - 8));
 
 			ai = mAppInfoIds.get(gioId);
 
-			for (int i = 0; gioPath[i] != NULL; ++i)
+			for (int i = 0; gioPath[i] != nullptr; ++i)
 				g_strfreev(gioPath[i]);
 			g_free(gioPath);
 
-			if (ai != NULL)
+			if (ai != nullptr)
 				return ai;
 		}
 
@@ -227,7 +227,7 @@ namespace AppInfos
 		GDesktopAppInfo* info = g_desktop_app_info_new_from_filename(appInfo->path.c_str());
 		const gchar* const* actions = g_desktop_app_info_list_actions(info);
 
-		g_app_info_launch((GAppInfo*)info, NULL, NULL, NULL);
+		g_app_info_launch((GAppInfo*)info, nullptr, nullptr, nullptr);
 	}
 
 } // namespace AppInfos

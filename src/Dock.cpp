@@ -82,7 +82,7 @@ namespace Dock
 	Group* prepareGroup(AppInfo* appInfo)
 	{
 		Group* group = mGroups.get(appInfo);
-		if (group == NULL)
+		if (group == nullptr)
 		{
 			group = new Group(appInfo, false);
 			mGroups.push(appInfo, group);

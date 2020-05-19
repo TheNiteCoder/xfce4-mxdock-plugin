@@ -43,12 +43,12 @@ GroupMenuItem::GroupMenuItem(GroupWindow* groupWindow)
 			}
 			/*else if (event->button == 3) //TODO debug
 			{
-				GtkWidget* menu = Wnck::buildActionMenu(me->mGroupWindow, NULL);
+				GtkWidget* menu = Wnck::buildActionMenu(me->mGroupWindow, nullptr);
 
 				std::cout << "tst:" << me->mGroupWindow << std::endl
 						  << std::flush;
 
-				gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(me->mItem), NULL);
+				gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(me->mItem), nullptr);
 				gtk_menu_popup_at_widget(GTK_MENU(menu), GTK_WIDGET(me->mItem), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent*)event);
 			}*/
 			return true;
@@ -80,7 +80,7 @@ GroupMenuItem::GroupMenuItem(GroupWindow* groupWindow)
 
 	g_signal_connect(G_OBJECT(mItem), "drag-motion",
 		G_CALLBACK(+[](GtkWidget* widget, GdkDragContext* context, gint x, gint y, guint time, GroupMenuItem* me) {
-			if (me->mDragSwitchTimeout.mTimeoutId == NULL)
+			if (me->mDragSwitchTimeout.mTimeoutId == nullptr)
 				me->mDragSwitchTimeout.start();
 
 			me->mGroupWindow->mGroup->mLeaveTimeout.stop();
@@ -111,7 +111,7 @@ void GroupMenuItem::updateLabel()
 void GroupMenuItem::updateIcon()
 {
 	GdkPixbuf* iconPixbuf = Wnck::getMiniIcon(mGroupWindow);
-	if (iconPixbuf != NULL)
+	if (iconPixbuf != nullptr)
 		gtk_image_set_from_pixbuf(GTK_IMAGE(mIcon), iconPixbuf);
 }
 
