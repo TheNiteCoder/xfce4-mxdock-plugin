@@ -7,6 +7,7 @@
 namespace AppInfos
 {
 	std::list<std::string> mXdgDataDirs;
+	Store::Map<const std::string, AppInfo*> mAppInfoWMClasses;
 	Store::Map<const std::string, AppInfo*> mAppInfoIds;
 	Store::Map<const std::string, AppInfo*> mAppInfoNames;
 
@@ -101,7 +102,7 @@ namespace AppInfos
 			wmclass = Help::String::toLowercase(Help::String::trim(wmclass_));
 
 			if (wmclass != id && wmclass != name && wmclass != exec)
-				mAppInfoNames.set(wmclass, info);
+				mAppInfoWMClasses.set(wmclass, info);
 		}
 
 		pthread_mutex_unlock(&AppInfosLock);
@@ -176,7 +177,11 @@ namespace AppInfos
 
 	AppInfo* search(std::string id)
 	{
-		AppInfo* ai = mAppInfoIds.get(id);
+		AppInfo* ai = mAppInfoWMClasses.get(id);
+		if (ai != nullptr)
+			return ai;
+
+		ai = mAppInfoIds.get(id);
 		if (ai != nullptr)
 			return ai;
 
