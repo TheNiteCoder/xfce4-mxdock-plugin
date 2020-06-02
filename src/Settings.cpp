@@ -50,10 +50,10 @@ namespace Settings
 			});
 
 		showOnlyWindowsInCurrentWorkspace.setup(g_key_file_get_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", nullptr),
-				[](bool showOnlyWindowsInCurrentWorkspace) -> void {
-					g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", showOnlyWindowsInCurrentWorkspace);
-					saveFile();
-				});
+			[](bool showOnlyWindowsInCurrentWorkspace) -> void {
+				g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", showOnlyWindowsInCurrentWorkspace);
+				saveFile();
+			});
 
 		gchar** pinnedListBuffer = g_key_file_get_string_list(mFile, "user", "pinned", nullptr, nullptr);
 		pinnedAppList.setup(Help::Gtk::bufferToStdStringList(pinnedListBuffer),

@@ -52,17 +52,15 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 				}
 				return false;
 			});
-			return count;
-		},
-		[this](uint windowsCount)->void {
+			return count; },
+		[this](uint windowsCount) -> void {
 			updateStyle();
 			electNewTopWindow();
-			if(windowsCount < 1 && !mPinned)
+			if (windowsCount < 1 && !mPinned)
 			{
 				gtk_widget_hide(mButton);
 			}
-		}
-	);
+		});
 
 	mLeaveTimeout.setup(40, [this]() {
 		uint distance = mGroupMenu.getPointerDistance();
@@ -164,12 +162,12 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 				me->mActiveBeforePressed = true;
 			}
 
-		me->setStyle(Style::Hover, true);
-		me->mLeaveTimeout.stop();
-		me->mMenuShowTimeout.start();
-		return false;
-	}),
-	this);
+			me->setStyle(Style::Hover, true);
+			me->mLeaveTimeout.stop();
+			me->mMenuShowTimeout.start();
+			return false;
+		}),
+		this);
 
 	g_signal_connect(
 		G_OBJECT(mButton), "leave-notify-event",
@@ -192,12 +190,11 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 		this);
 
 	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed",
-			G_CALLBACK(+[](WnckScreen* screen, WnckWorkspace* prevWorkspace, Group* me)
-				{
-				me->mWindowsCount.updateState();
-				me->mWindowsCount.forceFeedback();
-				}), this);
-
+		G_CALLBACK(+[](WnckScreen* screen, WnckWorkspace* prevWorkspace, Group* me) {
+			me->mWindowsCount.updateState();
+			me->mWindowsCount.forceFeedback();
+		}),
+		this);
 
 	gtk_drag_dest_set(mButton, GTK_DEST_DEFAULT_DROP, entries, 1, GDK_ACTION_MOVE);
 
@@ -211,7 +208,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	gtk_widget_add_events(mButton, GDK_SCROLL_MASK);
 	gtk_button_set_always_show_image(GTK_BUTTON(mButton), true);
 
-	if(mAppInfo != nullptr && !mAppInfo->icon.empty())
+	if (mAppInfo != nullptr && !mAppInfo->icon.empty())
 	{
 		GtkWidget* icon;
 
@@ -270,10 +267,10 @@ void Group::activate(guint32 timestamp)
 
 	GroupWindow* groupWindow = mTopWindow;
 
-// 	mWindows.forEach([&timestamp, &groupWindow](GroupWindow* w) -> void {
-// 		if (w != groupWindow)
-// 			w->activate(timestamp);
-// 	});
+	// 	mWindows.forEach([&timestamp, &groupWindow](GroupWindow* w) -> void {
+	// 		if (w != groupWindow)
+	// 			w->activate(timestamp);
+	// 	});
 
 	groupWindow->activate(timestamp);
 }
@@ -352,58 +349,62 @@ void Group::onDraw(cairo_t* cr)
 {
 	double aBack = 0.0;
 
-	if(mSHover || mSFocus) aBack = 0.5;
-	if(mSHover && mSFocus) aBack = 0.8;
+	if (mSHover || mSFocus)
+		aBack = 0.5;
+	if (mSHover && mSFocus)
+		aBack = 0.8;
 
 	int w = gtk_widget_get_allocated_width(GTK_WIDGET(mButton));
 	int h = gtk_widget_get_allocated_height(GTK_WIDGET(mButton));
 
-	if(aBack > 0) {
+	if (aBack > 0)
+	{
 		// Drawing the main box that highlights the box
 		cairo_set_source_rgba(cr, 0.5, 0.5, 0.5, aBack);
 		cairo_rectangle(cr, 0, 0, w, h);
 		cairo_fill(cr);
 	}
 
-// drawing the edge that gives the impression that there is more windows
+	// drawing the edge that gives the impression that there is more windows
 	if (Settings::indicatorStyle == 0) // Bar
 	{
-		if(mSOpened) {
+		if (mSOpened)
+		{
 			// drawing status bar indicating a window is open
-			if(mSFocus)
+			if (mSFocus)
 				cairo_set_source_rgba(cr, 0.30, 0.65, 0.90, 1);
 			else
 				cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
 #ifdef VERTICAL_BAR_ENABLED
-			if(mDockPosition == DockPosition::Right)
+			if (mDockPosition == DockPosition::Right)
 			{
-				cairo_rectangle(cr, w*0.9231, 0, w, h);
+				cairo_rectangle(cr, w * 0.9231, 0, w, h);
 			}
-			else if(mDockPosition == DockPosition::Left)
+			else if (mDockPosition == DockPosition::Left)
 			{
-				cairo_rectangle(cr, 0, 0, w*0.0769, h);
+				cairo_rectangle(cr, 0, 0, w * 0.0769, h);
 			}
 			else
 			{
-				cairo_rectangle(cr, 0, h*0.9231, w, h);
+				cairo_rectangle(cr, 0, h * 0.9231, w, h);
 			}
 #else
-			cairo_rectangle(cr, 0, h*0.9231, w, h);
+			cairo_rectangle(cr, 0, h * 0.9231, w, h);
 #endif
 			cairo_fill(cr);
 
 #ifdef VERTICAL_BAR_ENABLED
 			// handle having an extra blip if there are serveral windows in group
-			if(mSMany && (mSOpened || mSHover))
+			if (mSMany && (mSOpened || mSHover))
 			{
-				if(mDockPosition == DockPosition::Right)
+				if (mDockPosition == DockPosition::Right)
 				{
-					cairo_rectangle(cr, w*0.9231, 0, w, h*0.12);
+					cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
 				}
-				else if(mDockPosition == DockPosition::Left)
+				else if (mDockPosition == DockPosition::Left)
 				{
-					cairo_rectangle(cr, 0, 0, w*0.0679, h*0.12);
+					cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
 				}
 				cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
 				cairo_fill(cr);
@@ -411,28 +412,28 @@ void Group::onDraw(cairo_t* cr)
 #endif
 		}
 
-		if(mSMany && (mSOpened || mSHover))
+		if (mSMany && (mSOpened || mSHover))
 		{
 #ifdef VERTICAL_BAR_ENABLED
 			int x1, x2;
 			cairo_pattern_t* pat;
-			if(mDockPosition == DockPosition::Right)
+			if (mDockPosition == DockPosition::Right)
 			{
 				x1 = 0;
-				x2 = (int) w * 0.12;
+				x2 = (int)w * 0.12;
 			}
 			else
 			{
-				x1 = (int) w * 0.88;
+				x1 = (int)w * 0.88;
 				x2 = w;
 			}
 			pat = cairo_pattern_create_linear(x1, 0, x2, 0);
 #else
-			int x1 = (int) w*0.88;
-			cairo_pattern_t *pat = cairo_pattern_create_linear(x1, 0, w, 0);
+			int x1 = (int)w * 0.88;
+			cairo_pattern_t* pat = cairo_pattern_create_linear(x1, 0, w, 0);
 #endif
 
- 			if(mDockPosition == DockPosition::Right)
+			if (mDockPosition == DockPosition::Right)
 			{
 				cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.15);
 				cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
@@ -445,10 +446,10 @@ void Group::onDraw(cairo_t* cr)
 				cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.15);
 			}
 
-			if(aBack > 0) // if hovering or active
+			if (aBack > 0) // if hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				if(mDockPosition == DockPosition::Right)
+				if (mDockPosition == DockPosition::Right)
 				{
 					cairo_rectangle(cr, x1, 0, x2, h);
 				}
@@ -463,17 +464,17 @@ void Group::onDraw(cairo_t* cr)
 			else
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				if(mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
+				if (mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
 				{
 					// Do not do anything here this is taken care of before
 					// cairo_rectangle(cr, x1, 0, x2, h);
 				}
 				else
 				{
-					cairo_rectangle(cr, x1, h*0.9231, x2, h);
+					cairo_rectangle(cr, x1, h * 0.9231, x2, h);
 				}
 #else
-				cairo_rectangle(cr, x1, h*0.9231, w, h);
+				cairo_rectangle(cr, x1, h * 0.9231, w, h);
 #endif
 			}
 			cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.45);
@@ -498,16 +499,15 @@ void Group::onDraw(cairo_t* cr)
 			double dotRadius = std::max(h * (0.093), 2.);
 #ifdef VERTICAL_BAR_ENABLED
 			double epos;
-			if(mDockPosition == DockPosition::Left)
+			if (mDockPosition == DockPosition::Left)
 				epos = w * 0.01;
-			else if(mDockPosition == DockPosition::Right)
+			else if (mDockPosition == DockPosition::Right)
 				epos = w * 0.99;
 			else
 				epos = h * 0.99;
 #else
 			double ypos = h * 0.99;
 #endif
-
 
 			double rgb[3] = {0, 1, 2};
 
@@ -528,7 +528,7 @@ void Group::onDraw(cairo_t* cr)
 			{
 #ifdef VERTICAL_BAR_ENABLED
 				double pos;
-				if(mDockPosition == DockPosition::Right ||
+				if (mDockPosition == DockPosition::Right ||
 					mDockPosition == DockPosition::Left)
 				{
 					pos = (h / 2.) - dotRadius * 1;
@@ -537,13 +537,13 @@ void Group::onDraw(cairo_t* cr)
 				{
 					pos = (w / 2.) - dotRadius * 1;
 				}
-#else 
+#else
 				double cx = (w / 2.) - dotRadius * 1;
 #endif
 
 #ifdef VERTICAL_BAR_ENABLED
 				double x, y;
-				if(mDockPosition == DockPosition::Left ||
+				if (mDockPosition == DockPosition::Left ||
 					mDockPosition == DockPosition::Right)
 				{
 					x = epos;
@@ -573,7 +573,7 @@ void Group::onDraw(cairo_t* cr)
 				cairo_pattern_destroy(pat);
 
 #ifdef VERTICAL_BAR_ENABLED
-				if(mDockPosition == DockPosition::Right ||
+				if (mDockPosition == DockPosition::Right ||
 					mDockPosition == DockPosition::Left)
 				{
 					pos = (h / 2.) + dotRadius * 1;
@@ -587,7 +587,7 @@ void Group::onDraw(cairo_t* cr)
 #endif
 
 #ifdef VERTICAL_BAR_ENABLED
-				if(mDockPosition == DockPosition::Left ||
+				if (mDockPosition == DockPosition::Left ||
 					mDockPosition == DockPosition::Right)
 				{
 					x = epos;
@@ -620,7 +620,7 @@ void Group::onDraw(cairo_t* cr)
 			{
 #ifdef VERTICAL_BAR_ENABLED
 				double pos;
-				if(mDockPosition == DockPosition::Right ||
+				if (mDockPosition == DockPosition::Right ||
 					mDockPosition == DockPosition::Left)
 				{
 					pos = h / 2.;
@@ -635,7 +635,7 @@ void Group::onDraw(cairo_t* cr)
 
 #ifdef VERTICAL_BAR_ENABLED
 				double x, y;
-				if(mDockPosition == DockPosition::Left ||
+				if (mDockPosition == DockPosition::Left ||
 					mDockPosition == DockPosition::Right)
 				{
 					x = epos;
@@ -699,11 +699,11 @@ void Group::setMouseLeaveTimeout()
 void Group::updateStyle()
 {
 	// Hide menu items
-	if(Settings::showOnlyWindowsInCurrentWorkspace)
+	if (Settings::showOnlyWindowsInCurrentWorkspace)
 	{
-		for(auto pair : mGroupMenu.mItemWindowPairs)
+		for (auto pair : mGroupMenu.mItemWindowPairs)
 		{
-			if(pair.second->inCurrentWorkspace())
+			if (pair.second->inCurrentWorkspace())
 			{
 				gtk_widget_show(GTK_WIDGET(pair.first));
 			}
@@ -715,14 +715,13 @@ void Group::updateStyle()
 	}
 	else // ensure all menu items are shown
 	{
-		for(auto pair : mGroupMenu.mItemWindowPairs)
+		for (auto pair : mGroupMenu.mItemWindowPairs)
 		{
 			gtk_widget_show(GTK_WIDGET(pair.first));
 		}
 	}
 
 	int wCount = mWindowsCount;
-
 
 	if (mPinned || wCount)
 		gtk_widget_show(mButton);
@@ -745,19 +744,20 @@ void Group::updateStyle()
 
 void Group::electNewTopWindow()
 {
-	if(mWindowsCount > 0)
+	if (mWindowsCount > 0)
 	{
 		GroupWindow* newTopWindow = nullptr;
 
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
-			if(Settings::showOnlyWindowsInCurrentWorkspace)
+			if (Settings::showOnlyWindowsInCurrentWorkspace)
 			{
 				return info->mGroupWindow->mGroup == this && info->mGroupWindow->inCurrentWorkspace();
 			}
-			else return info->mGroupWindow->mGroup == this;
+			else
+				return info->mGroupWindow->mGroup == this;
 		});
 
-		if(iter == Wnck::mWindows.end())
+		if (iter == Wnck::mWindows.end())
 		{
 			newTopWindow = nullptr;
 		}
@@ -796,88 +796,83 @@ void Group::setTopWindow(GroupWindow* groupWindow)
 void Group::onButtonPress(GdkEventButton* event)
 {
 
-	if(event->button != 3) return;
+	if (event->button != 3)
+		return;
 
-	if(mWindowsCount == 0 || mTopWindow == nullptr)
+	if (mWindowsCount == 0 || mTopWindow == nullptr)
 	{
 		GtkWidget* menu = gtk_menu_new();
 
 		GtkWidget* launchAnother = gtk_menu_item_new_with_label("Launch");
 		GtkWidget* separator = gtk_separator_menu_item_new();
-		GtkWidget* pinToggle = mPinned ?
-			gtk_menu_item_new_with_label("Unpin") :
-			gtk_menu_item_new_with_label("Pin this app");
+		GtkWidget* pinToggle = mPinned ? gtk_menu_item_new_with_label("Unpin") : gtk_menu_item_new_with_label("Pin this app");
 
 		gtk_widget_show(separator);
 		gtk_widget_show(launchAnother);
 		gtk_widget_show(pinToggle);
 
-		gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
-		gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(separator), 1, 2, 0, 2);
-		gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(pinToggle), 1, 2, 0, 2);
+		gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
+		gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(separator), 1, 2, 0, 2);
+		gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(pinToggle), 1, 2, 0, 2);
 
 		g_signal_connect(G_OBJECT(launchAnother), "activate",
-		G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
-		{
-			AppInfos::launch(me->mAppInfo);
-			me->mWindowsCount.updateState();
-		}), this);
+			G_CALLBACK(+[](GtkMenuItem* menuitem, Group* me) {
+				AppInfos::launch(me->mAppInfo);
+				me->mWindowsCount.updateState();
+			}),
+			this);
 
 		g_signal_connect(G_OBJECT(pinToggle), "activate",
-		G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
-		{
-			me->mPinned = !me->mPinned;
-			if(!me->mPinned)
-				me->updateStyle();
-			Dock::savePinned();
+			G_CALLBACK(+[](GtkMenuItem* menuitem, Group* me) {
+				me->mPinned = !me->mPinned;
+				if (!me->mPinned)
+					me->updateStyle();
+				Dock::savePinned();
+			}),
+			this);
 
-		}), this);
-
-		gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), nullptr);
-		gtk_menu_popup_at_widget (GTK_MENU (menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent *) event);
+		gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(mButton), nullptr);
+		gtk_menu_popup_at_widget(GTK_MENU(menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent*)event);
 	}
 	else
 	{
-		if(mTopWindow != nullptr)
+		if (mTopWindow != nullptr)
 		{
 
 			GtkWidget* menu = Wnck::buildActionMenu(mTopWindow, mTopWindow->mGroup);
 
 			GtkWidget* launchAnother = gtk_menu_item_new_with_label("Launch another");
 			GtkWidget* separator = gtk_separator_menu_item_new();
-			GtkWidget* pinToggle = mPinned ?
-				gtk_menu_item_new_with_label("Unpin") :
-				gtk_menu_item_new_with_label("Pin this app");
+			GtkWidget* pinToggle = mPinned ? gtk_menu_item_new_with_label("Unpin") : gtk_menu_item_new_with_label("Pin this app");
 
 			gtk_widget_show(separator);
 			gtk_widget_show(launchAnother);
 			gtk_widget_show(pinToggle);
 
-			gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
-			gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(separator), 1, 2, 0, 2);
-			gtk_menu_attach(GTK_MENU (menu), GTK_WIDGET(pinToggle), 1, 2, 0, 2);
+			gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
+			gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(separator), 1, 2, 0, 2);
+			gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(pinToggle), 1, 2, 0, 2);
 
 			g_signal_connect(G_OBJECT(launchAnother), "activate",
-			G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
-			{
-				AppInfos::launch(me->mAppInfo);
-				me->mWindowsCount.updateState();
-				me->mWindowsCount.forceFeedback();
-			}), this);
+				G_CALLBACK(+[](GtkMenuItem* menuitem, Group* me) {
+					AppInfos::launch(me->mAppInfo);
+					me->mWindowsCount.updateState();
+					me->mWindowsCount.forceFeedback();
+				}),
+				this);
 
 			g_signal_connect(G_OBJECT(pinToggle), "activate",
-			G_CALLBACK(+[](GtkMenuItem *menuitem, Group* me)
-			{
-				me->mPinned = !me->mPinned;
-				if(!me->mPinned)
-					me->updateStyle();
-				Dock::savePinned();
+				G_CALLBACK(+[](GtkMenuItem* menuitem, Group* me) {
+					me->mPinned = !me->mPinned;
+					if (!me->mPinned)
+						me->updateStyle();
+					Dock::savePinned();
+				}),
+				this);
 
-			}), this);
+			gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(mButton), nullptr);
 
-			gtk_menu_attach_to_widget (GTK_MENU (menu), GTK_WIDGET(mButton), nullptr);
-
-			gtk_menu_popup_at_widget (GTK_MENU (menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent *) event);
+			gtk_menu_popup_at_widget(GTK_MENU(menu), GTK_WIDGET(mButton), GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent*)event);
 
 			//then destroy TODO
 			/* g_signal_connect (G_OBJECT (menu), "selection-done",
@@ -907,20 +902,25 @@ void Group::onButtonRelease(GdkEventButton* event)
 	}
 	else if (mActive && mActiveBeforePressed)
 	{
-		if(mTopWindow != nullptr) mTopWindow->minimize();
+		if (mTopWindow != nullptr)
+			mTopWindow->minimize();
 	}
- 	else
- 	{
-		if(mTopWindow == nullptr)
+	else
+	{
+		if (mTopWindow == nullptr)
 		{
 			electNewTopWindow();
 		}
- 		if(mTopWindow != nullptr)
- 		{
- 			guint32 timestamp = event->time;
- 			mTopWindow->activate(timestamp);
- 		}
- 	}
+		if (mTopWindow != nullptr)
+		{
+			guint32 timestamp = event->time;
+			mTopWindow->activate(timestamp);
+		}
+		else
+		{
+			std::cerr << "mTopWindow is NULL" << std::endl;
+		}
+	}
 }
 
 void Group::onScroll(GdkEventScroll* event)
@@ -932,66 +932,67 @@ void Group::onScroll(GdkEventScroll* event)
 
 	if (!mActive)
 	{
-		if(mTopWindow != nullptr) mTopWindow->activate(event->time);
+		if (mTopWindow != nullptr)
+			mTopWindow->activate(event->time);
 	}
 	else
 	{
 		std::list<Wnck::WindowInfo*> filtered = Wnck::mWindows;
-		if(Settings::showOnlyWindowsInCurrentWorkspace)
+		if (Settings::showOnlyWindowsInCurrentWorkspace)
 		{
-			filtered.remove_if([](Wnck::WindowInfo* wi){
+			filtered.remove_if([](Wnck::WindowInfo* wi) {
 				return !wi->mGroupWindow->inCurrentWorkspace();
 			});
 		}
 
-		if(event->direction == GDK_SCROLL_UP)
+		if (event->direction == GDK_SCROLL_UP)
 		{
 			std::reverse(filtered.begin(), filtered.end());
 		}
 
-		auto current = std::find_if(filtered.begin(), filtered.end(), [=](Wnck::WindowInfo* wi){
+		auto current = std::find_if(filtered.begin(), filtered.end(), [=](Wnck::WindowInfo* wi) {
 			return wi->mGroupWindow == mTopWindow;
 		});
 
-		if(current == filtered.end())
+		if (current == filtered.end())
 			return;
 
 		std::rotate(filtered.begin(), current, filtered.end());
 
-		auto nextWindow = std::find_if(filtered.begin(), filtered.end(), [this](Wnck::WindowInfo* wi){
+		auto nextWindow = std::find_if(filtered.begin(), filtered.end(), [this](Wnck::WindowInfo* wi) {
 			return wi->mGroupWindow->mGroup == this;
 		});
-		if(nextWindow == filtered.end())
+		if (nextWindow == filtered.end())
 			return;
 		Wnck::WindowInfo* wi = *nextWindow;
 		wi->mGroupWindow->activate(event->time);
 		setTopWindow(wi->mGroupWindow);
 
 		// TODO make this work
-//  		if(event->direction == GDK_SCROLL_UP)
-// 		{
-// 			std::reverse(filtered.begin(), current);
-// 			auto closest = std::find_if(filtered.begin(), current, [this](Wnck::WindowInfo* wi){
-// 				return wi->mGroupWindow->mGroup == this;
-// 			});
-// 			if(closest == current)
-// 				return;
-// 			Wnck::WindowInfo* wi = *closest;
-// 			wi->mGroupWindow->activate(event->time);
-// 			setTopWindow(wi->mGroupWindow);
-// 		}
-//  		else if(event->direction == GDK_SCROLL_DOWN)
-// 		{
-// 			if(++current == filtered.end()) return;
-// 			auto closest = std::find_if(current, filtered.end(), [this](Wnck::WindowInfo* wi){
-// 				return wi->mGroupWindow->mGroup == this;
-// 			});
-// 			if(closest == filtered.end())
-// 				return;
-// 			Wnck::WindowInfo* wi = *closest;
-// 			wi->mGroupWindow->activate(event->time);
-// 			setTopWindow(wi->mGroupWindow);
-// 		}
+		//  		if(event->direction == GDK_SCROLL_UP)
+		// 		{
+		// 			std::reverse(filtered.begin(), current);
+		// 			auto closest = std::find_if(filtered.begin(), current, [this](Wnck::WindowInfo* wi){
+		// 				return wi->mGroupWindow->mGroup == this;
+		// 			});
+		// 			if(closest == current)
+		// 				return;
+		// 			Wnck::WindowInfo* wi = *closest;
+		// 			wi->mGroupWindow->activate(event->time);
+		// 			setTopWindow(wi->mGroupWindow);
+		// 		}
+		//  		else if(event->direction == GDK_SCROLL_DOWN)
+		// 		{
+		// 			if(++current == filtered.end()) return;
+		// 			auto closest = std::find_if(current, filtered.end(), [this](Wnck::WindowInfo* wi){
+		// 				return wi->mGroupWindow->mGroup == this;
+		// 			});
+		// 			if(closest == filtered.end())
+		// 				return;
+		// 			Wnck::WindowInfo* wi = *closest;
+		// 			wi->mGroupWindow->activate(event->time);
+		// 			setTopWindow(wi->mGroupWindow);
+		// 		}
 	}
 }
 
@@ -1014,11 +1015,11 @@ bool Group::onDragMotion(GtkWidget* widget, GdkDragContext* context, int x, int 
 		{
 			if (mWindowsCount > 0)
 			{
-				if(mTopWindow != nullptr)
+				if (mTopWindow != nullptr)
 				{
 					mTopWindow->activate(time);
 
-					if(!mGroupMenu.mVisible)
+					if (!mGroupMenu.mVisible)
 						onMouseEnter();
 				}
 

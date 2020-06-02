@@ -1,7 +1,6 @@
 
 #include "PluginContext.hpp"
 
-
 extern "C" PluginContext* plugin_context_new(XfcePanelPlugin* plugin, Config* config)
 {
 	PluginContext* ptr = new PluginContext;
@@ -14,4 +13,3 @@ extern "C" void plugin_context_free(PluginContext* context)
 {
 	delete context;
 }
-

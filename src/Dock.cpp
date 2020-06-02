@@ -39,23 +39,23 @@ namespace Dock
 	Group::DockPosition getDockPosition(XfceScreenPosition position)
 	{
 		Group::DockPosition pos = Group::DockPosition::Empty;
-		if(xfce_screen_position_is_floating(position))
+		if (xfce_screen_position_is_floating(position))
 		{
 			pos = Group::DockPosition::Floating;
 		}
-		else if(xfce_screen_position_is_top(position))
+		else if (xfce_screen_position_is_top(position))
 		{
 			pos = Group::DockPosition::Top;
 		}
-		else if(xfce_screen_position_is_bottom(position))
+		else if (xfce_screen_position_is_bottom(position))
 		{
 			pos = Group::DockPosition::Bottom;
 		}
-		else if(xfce_screen_position_is_left(position))
+		else if (xfce_screen_position_is_left(position))
 		{
 			pos = Group::DockPosition::Left;
 		}
-		else if(xfce_screen_position_is_right(position))
+		else if (xfce_screen_position_is_right(position))
 		{
 			pos = Group::DockPosition::Right;
 		}
@@ -65,7 +65,7 @@ namespace Dock
 	void UpdateGroupsScreenPosition()
 	{
 		Group::DockPosition pos = getDockPosition(xfce_panel_plugin_get_screen_position(Plugin::mXfPlugin));
-		mGroups.forEach([=](std::pair<AppInfo*, Group*> g){
+		mGroups.forEach([=](std::pair<AppInfo*, Group*> g) {
 			g.second->mDockPosition = pos;
 			g.second->redraw();
 		});
@@ -170,12 +170,12 @@ namespace Dock
 	void onPanelOrientationChange(GtkOrientation orientation)
 	{
 		gtk_orientable_set_orientation(GTK_ORIENTABLE(mBox), orientation);
-		mGroups.forEach([=](std::pair<AppInfo*, Group*> g)->void { g.second->mDockOrientation = orientation; });
+		mGroups.forEach([=](std::pair<AppInfo*, Group*> g) -> void { g.second->mDockOrientation = orientation; });
 	}
 
 	void onScreenPositionChange(XfceScreenPosition position)
 	{
 		Group::DockPosition pos = getDockPosition(position);
-		mGroups.forEach([=](std::pair<AppInfo*, Group*> g)->void { g.second->mDockPosition = pos; g.second->redraw(); });
+		mGroups.forEach([=](std::pair<AppInfo*, Group*> g) -> void { g.second->mDockPosition = pos; g.second->redraw(); });
 	}
 } // namespace Dock

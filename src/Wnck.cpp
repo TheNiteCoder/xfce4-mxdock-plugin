@@ -4,7 +4,9 @@
 
 #include <algorithm>
 
-#define RETURN_IF(b) if(b)return;
+#define RETURN_IF(b) \
+	if (b)           \
+		return;
 
 namespace Wnck
 {
@@ -34,9 +36,10 @@ namespace Wnck
 	namespace // private:
 	{
 		std::map<std::string, std::string> mGroupNameRename //ADDIT GroupName aliases
-			= { {"soffice", "libreoffice"},
+			= {
+				{"soffice", "libreoffice"},
 				{"radium_linux.bin", "radium"},
-			};
+		};
 
 		void groupNameTransform(std::string& groupName, WnckWindow* wnckWindow)
 		{
@@ -100,7 +103,7 @@ namespace Wnck
 	} // namespace
 
 	// public:
-	
+
 	void earlyInit()
 	{
 		mWnckScreen = wnck_screen_get_default();
@@ -112,41 +115,42 @@ namespace Wnck
 
 		// signal connection
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-opened",
-				G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
-					{
-					WindowInfo* ptr = new WindowInfo(wnckWindow);
-					mWindows.push_back(ptr);
-					ptr->construct(); // construct WindowInfo after it has been added to the array
-					}), nullptr);
+			G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow) {
+				WindowInfo* ptr = new WindowInfo(wnckWindow);
+				mWindows.push_back(ptr);
+				ptr->construct(); // construct WindowInfo after it has been added to the array
+			}),
+			nullptr);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-closed",
-				G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow)
-					{
-					auto positer = std::find_if(mWindows.begin(), mWindows.end(), [=](WindowInfo* wi) {
-							return wi->mXID == wnck_window_get_xid(wnckWindow);
-							});
-					if(positer == mWindows.end()) return;
-					WindowInfo* ptr = *positer;
-					mWindows.erase(positer);
-					delete ptr;
-					}), nullptr);
+			G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow) {
+				auto positer = std::find_if(mWindows.begin(), mWindows.end(), [=](WindowInfo* wi) {
+					return wi->mXID == wnck_window_get_xid(wnckWindow);
+				});
+				if (positer == mWindows.end())
+					return;
+				WindowInfo* ptr = *positer;
+				mWindows.erase(positer);
+				delete ptr;
+			}),
+			nullptr);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "active-window-changed",
-				G_CALLBACK(+[](WnckScreen* screen, WnckWindow* previousActiveWindow) {
-					setActiveWindow();
-					}),
-				nullptr);
+			G_CALLBACK(+[](WnckScreen* screen, WnckWindow* previousActiveWindow) {
+				setActiveWindow();
+			}),
+			nullptr);
 
-// 		g_signal_connect(G_OBJECT(mWnckScreen), "active-workspace-changed", 
-// 				G_CALLBACK(+[](WnckScreen* screen) {
-// 					updateWorkspaceID();
-// 					}),
-// 				nullptr);
+		// 		g_signal_connect(G_OBJECT(mWnckScreen), "active-workspace-changed",
+		// 				G_CALLBACK(+[](WnckScreen* screen) {
+		// 					updateWorkspaceID();
+		// 					}),
+		// 				nullptr);
 
 		// already opened windows
 		for (GList* window_l = wnck_screen_get_windows(mWnckScreen);
-				window_l != nullptr;
-				window_l = window_l->next)
+			 window_l != nullptr;
+			 window_l = window_l->next)
 		{
 			WnckWindow* wnckWindow = WNCK_WINDOW(window_l->data);
 			WindowInfo* inbetween = new WindowInfo(wnckWindow);
@@ -182,7 +186,7 @@ namespace Wnck
 
 	void activate(GroupWindow* groupWindow, guint32 timestamp)
 	{
-		if(!groupWindow->inCurrentWorkspace())
+		if (!groupWindow->inCurrentWorkspace())
 		{
 			WnckWorkspace* workspace = wnck_window_get_workspace(groupWindow->mWnckWindow);
 			if (workspace != nullptr)
@@ -208,10 +212,10 @@ namespace Wnck
 		{
 			WindowInfo* info = *mWindows.begin();
 			info->mGroupWindow->onUnactivate();
-			auto iter = std::find_if(mWindows.begin(), mWindows.end(), [&activeXID](WindowInfo* wi){
-					return wi->mXID == activeXID;
-					});
-			if(iter == mWindows.end())
+			auto iter = std::find_if(mWindows.begin(), mWindows.end(), [&activeXID](WindowInfo* wi) {
+				return wi->mXID == activeXID;
+			});
+			if (iter == mWindows.end())
 			{
 				std::cerr << "mxdock: failed to find an active window" << std::endl;
 				return;
@@ -229,14 +233,15 @@ namespace Wnck
 	bool windowInCurrentWorkspace(WnckWindow* window)
 	{
 		WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
-		if(currentWorkspace == nullptr) return true;
+		if (currentWorkspace == nullptr)
+			return true;
 		WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
-		if(windowWorkspace == nullptr) return true;
+		if (windowWorkspace == nullptr)
+			return true;
 		int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
 		int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
 		return windowWorkspaceNumber == currentWorkspaceNumber;
 	}
-
 
 	std::string getGroupName(GroupWindow* groupWindow)
 	{
@@ -261,10 +266,10 @@ namespace Wnck
 			gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(launchAnother), 0, 1, 0, 1);
 
 			g_signal_connect(G_OBJECT(launchAnother), "activate",
-					G_CALLBACK(+[](GtkMenuItem* menuitem, AppInfo* appInfo) {
-						AppInfos::launch(appInfo);
-						}),
-					appInfo);
+				G_CALLBACK(+[](GtkMenuItem* menuitem, AppInfo* appInfo) {
+					AppInfos::launch(appInfo);
+				}),
+				appInfo);
 
 			if (group != nullptr)
 			{
@@ -278,13 +283,13 @@ namespace Wnck
 				gtk_menu_attach(GTK_MENU(menu), GTK_WIDGET(pinToggle), 1, 2, 0, 1);
 
 				g_signal_connect(G_OBJECT(pinToggle), "activate",
-						G_CALLBACK(+[](GtkMenuItem* menuitem, Group* group) {
-							group->mPinned = !group->mPinned;
-							if (!group->mPinned)
+					G_CALLBACK(+[](GtkMenuItem* menuitem, Group* group) {
+						group->mPinned = !group->mPinned;
+						if (!group->mPinned)
 							group->updateStyle();
-							Dock::savePinned();
-							}),
-						group);
+						Dock::savePinned();
+					}),
+					group);
 			}
 
 			if (group != nullptr && group->mWindowsCount > 1)
@@ -294,12 +299,12 @@ namespace Wnck
 				gtk_menu_shell_append(GTK_MENU_SHELL(menu), closeAll);
 
 				g_signal_connect(G_OBJECT(closeAll), "activate",
-						G_CALLBACK(+[](GtkMenuItem* menuitem, Group* group) {
-							group->mWindows.forEach([](GroupWindow* w) -> void {
-									Wnck::close(w, 0);
-									});
-							}),
-						group);
+					G_CALLBACK(+[](GtkMenuItem* menuitem, Group* group) {
+						group->mWindows.forEach([](GroupWindow* w) -> void {
+							Wnck::close(w, 0);
+						});
+					}),
+					group);
 			}
 
 			return menu;

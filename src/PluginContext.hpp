@@ -3,29 +3,27 @@
 
 #include "Config.hpp"
 
-extern "C" 
+extern "C"
 {
 
 #include <gtk/gtk.h>
 #include <libxfce4panel/libxfce4panel.h>
 
-G_BEGIN_DECLS
+	G_BEGIN_DECLS
 
-struct _PluginContext
-{
-	XfcePanelPlugin* plugin;
-	Config* config;
-};
+	struct _PluginContext
+	{
+		XfcePanelPlugin* plugin;
+		Config* config;
+	};
 
-typedef _PluginContext PluginContext;
+	typedef _PluginContext PluginContext;
 
-PluginContext* plugin_context_new(XfcePanelPlugin* plugin, Config* config);
+	PluginContext* plugin_context_new(XfcePanelPlugin* plugin, Config* config);
 
-void plugin_context_free(PluginContext* context);
+	void plugin_context_free(PluginContext* context);
 
-G_END_DECLS
-
+	G_END_DECLS
 }
 
 #endif // PLUGIN_CONTEXT_HPP
-

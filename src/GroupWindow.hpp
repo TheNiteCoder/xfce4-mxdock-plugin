@@ -44,9 +44,9 @@ class GroupWindow
 	Group* mGroup;
 
 	// TODO disabled during upstream merge
- 	bool mVisible;
- 	WnckScreen* mScreen;
- 	AppInfo* mAppInfo;
+	bool mVisible;
+	WnckScreen* mScreen;
+	AppInfo* mAppInfo;
 	WnckWindow* mWnckWindow;
 	GroupMenuItem* mGroupMenuItem;
 	int mWorkspaceID;

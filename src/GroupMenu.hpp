@@ -3,8 +3,8 @@
 
 #include <gtk/gtk.h>
 
-#include <list>
 #include <iostream>
+#include <list>
 
 class Group;
 class GroupMenuItem;
@@ -25,7 +25,7 @@ class GroupMenu
 
 	Group* mGroup;
 
-	std::list<std::pair<GtkEventBox*, GroupWindow*> > mItemWindowPairs;
+	std::list<std::pair<GtkEventBox*, GroupWindow*>> mItemWindowPairs;
 	GtkWidget* mWindow;
 	GtkWidget* mBox;
 
@@ -34,4 +34,3 @@ class GroupMenu
 };
 
 #endif
-

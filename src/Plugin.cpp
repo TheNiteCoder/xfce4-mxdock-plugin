@@ -44,14 +44,16 @@ namespace Plugin
 			nullptr);
 
 		g_signal_connect(G_OBJECT(GTK_WIDGET(mXfPlugin)), "orientation-changed",
-		G_CALLBACK(+[](XfcePanelPlugin *plugin, GtkOrientation orientation){
-			Dock::onPanelOrientationChange(orientation);
-		}), nullptr);
+			G_CALLBACK(+[](XfcePanelPlugin* plugin, GtkOrientation orientation) {
+				Dock::onPanelOrientationChange(orientation);
+			}),
+			nullptr);
 
 		g_signal_connect(G_OBJECT(GTK_WIDGET(mXfPlugin)), "screen-position-changed",
-		G_CALLBACK(+[](XfcePanelPlugin* plugin, XfceScreenPosition pos){
-			Dock::onScreenPositionChange(pos);
-		}), nullptr);
+			G_CALLBACK(+[](XfcePanelPlugin* plugin, XfceScreenPosition pos) {
+				Dock::onScreenPositionChange(pos);
+			}),
+			nullptr);
 
 		g_signal_connect(G_OBJECT(mXfPlugin), "configure-plugin",
 			G_CALLBACK(+[](XfcePanelPlugin* plugin) {

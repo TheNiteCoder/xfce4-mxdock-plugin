@@ -53,15 +53,15 @@ class LogicalState
 
 	operator V() const { return v; }
 
-		void forceFeedback()
-		{
-			f(v);
-		}
+	void forceFeedback()
+	{
+		f(v);
+	}
 
-	private:
-		V v;
-		std::function<V()> e;
-		std::function<void(V)> f;
+  private:
+	V v;
+	std::function<V()> e;
+	std::function<void(V)> f;
 };
 
 #endif

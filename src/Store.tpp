@@ -73,14 +73,14 @@ namespace Store
 		uint size() { return mList.size(); }
 
 		V first() { return mList.front().second; }
-		
+
 		std::list<std::pair<const K, V>>& underlying()
 		{
 			return mList;
 		}
-		
-	  	private:
-			std::list<std::pair<const K, V>> mList;
+
+	  private:
+		std::list<std::pair<const K, V>> mList;
 	};
 
 	template <typename K, typename V>

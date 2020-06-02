@@ -3,12 +3,12 @@
 #ifndef WNCK_HPP
 #define WNCK_HPP
 
-#include <libwnck/libwnck.h>
 #include <fcntl.h>
+#include <libwnck/libwnck.h>
 
 #include <map>
 
-#include "Group.hpp" 
+#include "Group.hpp"
 #include "GroupWindow.hpp"
 #include "Helpers.hpp"
 #include "Plugin.hpp"
@@ -16,50 +16,50 @@
 
 class GroupWindow;
 
-namespace Wnck {
-		void init();
-		void earlyInit();
+namespace Wnck
+{
+	void init();
+	void earlyInit();
 
-		class WindowInfo
-		{
-		public:
-			WindowInfo(WnckWindow* wnckWindow);
-			~WindowInfo();
+	class WindowInfo
+	{
+	  public:
+		WindowInfo(WnckWindow* wnckWindow);
+		~WindowInfo();
 
-			// this function is called after the new WindowInfo* is added to mWindows
-			// this is to prevent from the electing of a new window taking place before 
-			// the WindowInfo* is added to the array
-			void construct();
+		// this function is called after the new WindowInfo* is added to mWindows
+		// this is to prevent from the electing of a new window taking place before
+		// the WindowInfo* is added to the array
+		void construct();
 
-			gulong mXID;
-			GroupWindow* mGroupWindow;
-			bool mVisible;
+		gulong mXID;
+		GroupWindow* mGroupWindow;
+		bool mVisible;
+	};
 
-		};
+	gulong getActiveWindowXID();
 
-		gulong getActiveWindowXID();
+	std::string getName(GroupWindow* groupWindow);
+	std::string getGroupName(GroupWindow* groupWindow);
+	gushort getState(GroupWindow* groupWindow);
+	GdkPixbuf* getMiniIcon(GroupWindow* groupWindow);
 
-		std::string getName(GroupWindow* groupWindow);
-		std::string getGroupName(GroupWindow* groupWindow);
-		gushort getState(GroupWindow* groupWindow);
-		GdkPixbuf* getMiniIcon(GroupWindow* groupWindow);
+	void close(GroupWindow* groupWindow, guint32 timestamp);
+	void activate(GroupWindow* groupWindow, guint32 timestamp);
+	void minimize(GroupWindow* groupWindow);
 
-		void close(GroupWindow* groupWindow, guint32 timestamp);
-		void activate(GroupWindow* groupWindow, guint32 timestamp);
-		void minimize(GroupWindow* groupWindow);
+	bool inCurrentWorkspace(GroupWindow* groupWindow);
 
-		bool inCurrentWorkspace(GroupWindow* groupWindow);
+	void updateWorkspaceID();
 
-		void updateWorkspaceID();
+	void setActiveWindow();
 
-		void setActiveWindow();
-	
-		// bool windowInCurrentWorkspace(WnckWindow* window);
+	// bool windowInCurrentWorkspace(WnckWindow* window);
 
-		GtkWidget* buildActionMenu(GroupWindow* groupWindow, Group* group);
+	GtkWidget* buildActionMenu(GroupWindow* groupWindow, Group* group);
 
-		extern WnckScreen* mWnckScreen;
-		extern std::list<WindowInfo*> mWindows;
-}
+	extern WnckScreen* mWnckScreen;
+	extern std::list<WindowInfo*> mWindows;
+} // namespace Wnck
 
 #endif

@@ -23,11 +23,11 @@ namespace SettingsDialog
 			}),
 			dialog);
 
-		g_signal_connect(dialog, "close", 
-				G_CALLBACK(+[](GtkDialog* dialog){
-					xfce_panel_plugin_unblock_menu(Plugin::mXfPlugin);
-					}), 
-				nullptr);
+		g_signal_connect(dialog, "close",
+			G_CALLBACK(+[](GtkDialog* dialog) {
+				xfce_panel_plugin_unblock_menu(Plugin::mXfPlugin);
+			}),
+			nullptr);
 
 		GObject* noListForSingleWindow = gtk_builder_get_object(builder, "c_noListForSingleWindow");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(noListForSingleWindow), Settings::noWindowsListIfSingle);

@@ -18,9 +18,9 @@ void Config::save()
 void Config::setPinned(std::list<std::string> pinnedApps)
 {
 	std::vector<char*> buf;
-	for(std::string& s: pinnedApps)
+	for (std::string& s : pinnedApps)
 		buf.push_back(&s[0]);
-	
+
 	g_key_file_set_string_list(mFile, "user", "pinned", buf.data(), buf.size());
 }
 
@@ -29,8 +29,8 @@ std::list<std::string> Config::getPinned()
 	std::list<std::string> ret;
 	gchar** clist = g_key_file_get_string_list(mFile, "user", "pinned", nullptr, nullptr);
 
-	if(clist != nullptr)
-		for(int i = 0; clist[i] != nullptr; ++i)
+	if (clist != nullptr)
+		for (int i = 0; clist[i] != nullptr; ++i)
 			ret.push_back(clist[i]);
 
 	g_strfreev(clist);
