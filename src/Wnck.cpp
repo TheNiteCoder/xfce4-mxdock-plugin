@@ -203,6 +203,7 @@ namespace Wnck
 	void minimize(GroupWindow* groupWindow)
 	{
 		wnck_window_minimize(groupWindow->mWnckWindow);
+		setActiveWindow(); // make sure to get new active window
 	}
 
 	void setActiveWindow()

@@ -897,22 +897,26 @@ void Group::onButtonRelease(GdkEventButton* event)
 {
 	if (event->state & GDK_SHIFT_MASK || (mPinned && mWindowsCount == 0))
 	{
+		std::cerr << "Lanching" << std::endl;
 		AppInfos::launch(mAppInfo);
 		mWindowsCount.updateState();
 	}
 	else if (mActive && mActiveBeforePressed)
 	{
+		std::cerr << "Minimize" << std::endl;
 		if (mTopWindow != nullptr)
 			mTopWindow->minimize();
 	}
 	else
 	{
+		std::cerr << "trying to activate" << std::endl;
 		if (mTopWindow == nullptr)
 		{
 			electNewTopWindow();
 		}
 		if (mTopWindow != nullptr)
 		{
+			std::cerr << "activating" << std::endl;
 			guint32 timestamp = event->time;
 			mTopWindow->activate(timestamp);
 		}
