@@ -379,15 +379,21 @@ void Group::onDraw(cairo_t* cr)
 				cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
 #ifdef VERTICAL_BAR_ENABLED
-			if (mDockPosition == DockPosition::Right)
+			if (mDockPosition == DockPosition::Right || 
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, w * 0.9231, 0, w, h);
 			}
-			else if (mDockPosition == DockPosition::Left)
+			else if (mDockPosition == DockPosition::Left ||
+					(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, 0, 0, w * 0.0769, h);
 			}
-			else
+			else if(mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide)
+			{
+				cairo_rectangle(cr, 0, 0, w, h * 0.0769);
+			}
+			else // if(mDockPosition == DockPosition::Bottom)
 			{
 				cairo_rectangle(cr, 0, h * 0.9231, w, h);
 			}
@@ -400,11 +406,13 @@ void Group::onDraw(cairo_t* cr)
 			// handle having an extra blip if there are serveral windows in group
 			if (mSMany && (mSOpened || mSHover))
 			{
-				if (mDockPosition == DockPosition::Right)
+				if (mDockPosition == DockPosition::Right ||
+						(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
 				}
-				else if (mDockPosition == DockPosition::Left)
+				else if (mDockPosition == DockPosition::Left ||
+						(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
 				}
@@ -419,7 +427,8 @@ void Group::onDraw(cairo_t* cr)
 #ifdef VERTICAL_BAR_ENABLED
 			int x1, x2;
 			cairo_pattern_t* pat;
-			if (mDockPosition == DockPosition::Right)
+			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
 				x1 = 0;
 				x2 = (int)w * 0.12;
@@ -451,14 +460,15 @@ void Group::onDraw(cairo_t* cr)
 			if (aBack > 0) // if hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				if (mDockPosition == DockPosition::Right)
-				{
+				// if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+				   // (mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				// {
 					cairo_rectangle(cr, x1, 0, x2, h);
-				}
-				else
-				{
-					cairo_rectangle(cr, x1, 0, x2, h);
-				}
+				// }
+				// else
+				// {
+					// cairo_rectangle(cr, x1, 0, x2, h);
+				// }
 #else
 				cairo_rectangle(cr, x1, 0, w, h);
 #endif
@@ -501,9 +511,11 @@ void Group::onDraw(cairo_t* cr)
 			double dotRadius = std::max(h * (0.093), 2.);
 #ifdef VERTICAL_BAR_ENABLED
 			double epos;
-			if (mDockPosition == DockPosition::Left)
+			if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 				epos = w * 0.01;
-			else if (mDockPosition == DockPosition::Right)
+			else if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 				epos = w * 0.99;
 			else
 				epos = h * 0.99;

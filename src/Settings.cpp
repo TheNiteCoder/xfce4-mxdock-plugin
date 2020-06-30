@@ -11,6 +11,7 @@ namespace Settings
 	State<int> indicatorStyle;
 	State<std::list<std::string>> pinnedAppList;
 	State<bool> showOnlyWindowsInCurrentWorkspace;
+	State<bool> reverseIndicatorSide;
 
 	void init()
 	{
@@ -53,6 +54,13 @@ namespace Settings
 			[](bool showOnlyWindowsInCurrentWorkspace) -> void {
 				g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", showOnlyWindowsInCurrentWorkspace);
 				saveFile();
+			});
+	
+		reverseIndicatorSide.setup(g_key_file_get_boolean(mFile, "user", "reverseIndicatorSide", nullptr),
+			[](bool reverseIndicatorSide) -> void {
+				g_key_file_set_boolean(mFile, "user", "reverseIndicatorSide", reverseIndicatorSide);
+				saveFile();
+				Dock::redraw();
 			});
 
 		gchar** pinnedListBuffer = g_key_file_get_string_list(mFile, "user", "pinned", nullptr, nullptr);

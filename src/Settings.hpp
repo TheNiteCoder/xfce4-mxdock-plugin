@@ -25,6 +25,7 @@ namespace Settings
 	extern State<int> indicatorStyle;
 	extern State<std::list<std::string>> pinnedAppList;
 	extern State<bool> showOnlyWindowsInCurrentWorkspace;
+	extern State<bool> reverseIndicatorSide;
 
 }; // namespace Settings
 

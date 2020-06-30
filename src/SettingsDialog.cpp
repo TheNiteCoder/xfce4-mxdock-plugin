@@ -75,6 +75,13 @@ namespace SettingsDialog
 			}),
 			iconSize);
 
+		GObject* reverseIndicatorSide = gtk_builder_get_object(builder, "c_reverseIndicatorSide");
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(reverseIndicatorSide), Settings::reverseIndicatorSide);
+		g_signal_connect(reverseIndicatorSide, "toggled",
+			G_CALLBACK(+[](GtkToggleButton* btn){
+				Settings::reverseIndicatorSide.set(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(btn)));
+			}), nullptr);
+
 		return;
 
 		// Indicator style
