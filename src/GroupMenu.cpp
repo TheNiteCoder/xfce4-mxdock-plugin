@@ -66,6 +66,9 @@ void GroupMenu::add(GroupMenuItem* menuItem)
 void GroupMenu::remove(GroupMenuItem* menuItem)
 {
 	gtk_container_remove(GTK_CONTAINER(mBox), GTK_WIDGET(menuItem->mItem));
+	gint wx, wy;
+	xfce_panel_plugin_position_widget(Plugin::mXfPlugin, mWindow, mGroup->mButton, &wx, &wy);
+	gtk_window_move(GTK_WINDOW(mWindow), wx, wy);
 	gtk_window_resize(GTK_WINDOW(mWindow), 1, 1);
 
 	auto iter = std::find_if(mItemWindowPairs.begin(), mItemWindowPairs.end(), [menuItem](std::pair<GtkEventBox*, GroupWindow*> pair) {
