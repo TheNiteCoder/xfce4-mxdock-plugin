@@ -530,6 +530,10 @@ void Group::onDraw(cairo_t* cr)
 			else if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
 					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 				epos = w * 0.99;
+			else if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) || 
+					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) &&
+					 Settings::reverseIndicatorSide))
+				epos = h * 0.01;
 			else
 				epos = h * 0.99;
 #else
