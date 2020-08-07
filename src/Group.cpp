@@ -389,7 +389,8 @@ void Group::onDraw(cairo_t* cr)
 			{
 				cairo_rectangle(cr, 0, 0, w * 0.0769, h);
 			}
-			else if(mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide)
+			else if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) || 
+					(mDockPosition == DockPosition::Bottom && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, 0, 0, w, h * 0.0769);
 			}
@@ -460,15 +461,15 @@ void Group::onDraw(cairo_t* cr)
 			if (aBack > 0) // if hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				// if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-				   // (mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
-				// {
+				 if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				 {
 					cairo_rectangle(cr, x1, 0, x2, h);
-				// }
-				// else
-				// {
-					// cairo_rectangle(cr, x1, 0, x2, h);
-				// }
+				 }
+				 else
+				 {
+					 cairo_rectangle(cr, x1, 0, x2, h);
+				 }
 #else
 				cairo_rectangle(cr, x1, 0, w, h);
 #endif
@@ -479,24 +480,27 @@ void Group::onDraw(cairo_t* cr)
 				if (mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
 				{
 					// Do not do anything here this is taken care of before
-					// cairo_rectangle(cr, x1, 0, x2, h);
+					cairo_rectangle(cr, x1, 0, x2, h);
 				}
 				else
 				{
-					cairo_rectangle(cr, x1, h * 0.9231, x2, h);
+					//std::cerr << "Painting in (" << x1 << ", " << h * 0.9231 <<
+					//	", " << x2 << ", " << h << std::endl;
+					//cairo_rectangle(cr, x1, h * 0.9231, x2, h);
+					cairo_rectangle(cr, x1, 0, x2, h);
 				}
 #else
 				cairo_rectangle(cr, x1, h * 0.9231, w, h);
 #endif
 			}
-			cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.45);
-			cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
-			cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.15);
+			//cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.45);
+			//cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
+			//cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.15);
 
-			if (aBack > 0)
-				cairo_rectangle(cr, x1, 0, w, h);
-			else
-				cairo_rectangle(cr, x1, round(h * 0.9231), w, h);
+			//if (aBack > 0)
+				//cairo_rectangle(cr, x1, 0, w, h);
+			//else
+				//cairo_rectangle(cr, x1, round(h * 0.9231), w, h);
 
 			cairo_set_source(cr, pat);
 			cairo_fill(cr);
