@@ -98,6 +98,8 @@ class Group
 
 	GtkOrientation mDockOrientation;
 	DockPosition mDockPosition;
+
+	static double degreesToRadians(double degrees);
 };
 
 #endif

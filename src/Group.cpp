@@ -367,7 +367,6 @@ void Group::onDraw(cairo_t* cr)
 		cairo_fill(cr);
 	}
 
-	// drawing the edge that gives the impression that there is more windows
 	if (Settings::indicatorStyle == 0) // Bar
 	{
 		if (mSOpened)
@@ -379,7 +378,7 @@ void Group::onDraw(cairo_t* cr)
 				cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
 #ifdef VERTICAL_BAR_ENABLED
-			if (mDockPosition == DockPosition::Right || 
+			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) || 
 					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, w * 0.9231, 0, w, h);
@@ -390,7 +389,8 @@ void Group::onDraw(cairo_t* cr)
 				cairo_rectangle(cr, 0, 0, w * 0.0769, h);
 			}
 			else if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) || 
-					(mDockPosition == DockPosition::Bottom && Settings::reverseIndicatorSide))
+					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating)
+					 && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, 0, 0, w, h * 0.0769);
 			}
@@ -407,12 +407,12 @@ void Group::onDraw(cairo_t* cr)
 			// handle having an extra blip if there are serveral windows in group
 			if (mSMany && (mSOpened || mSHover))
 			{
-				if (mDockPosition == DockPosition::Right ||
+				if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
 						(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
 				}
-				else if (mDockPosition == DockPosition::Left ||
+				else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
 						(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
@@ -428,8 +428,8 @@ void Group::onDraw(cairo_t* cr)
 #ifdef VERTICAL_BAR_ENABLED
 			int x1, x2;
 			cairo_pattern_t* pat;
-			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide && true) ||
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide && true))
 			{
 				x1 = 0;
 				x2 = (int)w * 0.12;
@@ -445,11 +445,12 @@ void Group::onDraw(cairo_t* cr)
 			cairo_pattern_t* pat = cairo_pattern_create_linear(x1, 0, w, 0);
 #endif
 
-			if (mDockPosition == DockPosition::Right)
+			if((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
-				cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.15);
-				cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
-				cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.45);
+				cairo_pattern_add_color_stop_rgba(pat, 0.7, 0, 0, 0, 0.15);
+				cairo_pattern_add_color_stop_rgba(pat, 0.8, 0, 0, 0, 0.35);
+				cairo_pattern_add_color_stop_rgba(pat, 1.0, 0, 0, 0, 0.45);
 			}
 			else
 			{
@@ -474,21 +475,29 @@ void Group::onDraw(cairo_t* cr)
 				cairo_rectangle(cr, x1, 0, w, h);
 #endif
 			}
-			else
+			else // if not hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				if (mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
+				if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
+						((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating)
+						 && Settings::reverseIndicatorSide))
 				{
-					// Do not do anything here this is taken care of before
-					cairo_rectangle(cr, x1, 0, x2, h);
+					cairo_rectangle(cr, x1, 0, x2, h * 0.0769);
 				}
-				else
+				else if(((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating)
+							&& !Settings::reverseIndicatorSide) ||
+						(mDockPosition == DockPosition::Top && Settings::reverseIndicatorSide))
 				{
-					//std::cerr << "Painting in (" << x1 << ", " << h * 0.9231 <<
-					//	", " << x2 << ", " << h << std::endl;
-					//cairo_rectangle(cr, x1, h * 0.9231, x2, h);
-					cairo_rectangle(cr, x1, 0, x2, h);
+					cairo_rectangle(cr, x1, h * 0.9231, x2, h);
 				}
+				//if (mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
+				//{
+					//cairo_rectangle(cr, x1, 0, x2, h);
+				//}
+				//else
+				//{
+					//cairo_rectangle(cr, x1, 0, x2, h);
+				//}
 #else
 				cairo_rectangle(cr, x1, h * 0.9231, w, h);
 #endif
@@ -1085,4 +1094,9 @@ void Group::onDragDataReceived(const GdkDragContext* context, int x, int y, cons
 void Group::onDragBegin(GdkDragContext* context)
 {
 	gtk_drag_set_icon_name(context, mAppInfo->icon.c_str(), 0, 0);
+}
+
+double Group::degreesToRadians(double degrees)
+{
+	return degrees * (M_PI/180);
 }
