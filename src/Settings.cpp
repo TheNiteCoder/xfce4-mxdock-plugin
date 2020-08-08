@@ -12,6 +12,7 @@ namespace Settings
 	State<std::list<std::string>> pinnedAppList;
 	State<bool> showOnlyWindowsInCurrentWorkspace;
 	State<bool> reverseIndicatorSide;
+	State<bool> showOnlyWindowsOnCurrentMoniter;
 
 	void init()
 	{
@@ -59,6 +60,13 @@ namespace Settings
 		reverseIndicatorSide.setup(g_key_file_get_boolean(mFile, "user", "reverseIndicatorSide", nullptr),
 			[](bool reverseIndicatorSide) -> void {
 				g_key_file_set_boolean(mFile, "user", "reverseIndicatorSide", reverseIndicatorSide);
+				saveFile();
+				Dock::redraw();
+			});
+
+		showOnlyWindowsOnCurrentMoniter.setup(g_key_file_get_boolean(mFile, "user", "showOnlyWindowsOnCurrentMoniter", nullptr),
+			[](bool value) -> void {
+				g_key_file_set_boolean(mFile, "user", "showOnlyWindowsOnCurrentMoniter", value);
 				saveFile();
 				Dock::redraw();
 			});

@@ -40,6 +40,7 @@ class GroupWindow
 	bool visible();
 
 	bool inCurrentWorkspace();
+	bool onCurrentMonitor();
 
 	Group* mGroup;
 

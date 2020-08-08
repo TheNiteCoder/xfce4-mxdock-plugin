@@ -26,6 +26,7 @@ namespace Settings
 	extern State<std::list<std::string>> pinnedAppList;
 	extern State<bool> showOnlyWindowsInCurrentWorkspace;
 	extern State<bool> reverseIndicatorSide;
+	extern State<bool> showOnlyWindowsOnCurrentMoniter;
 
 }; // namespace Settings
 

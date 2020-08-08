@@ -67,6 +67,8 @@ class Group
 	void onDragDataReceived(const GdkDragContext* context, int x, int y, const GtkSelectionData* selectionData, guint info, guint time);
 	void onDragBegin(GdkDragContext* context);
 
+	bool windowMeetsCriteria(GroupWindow* window);
+
 	void activate(guint32 timestamp);
 
 	bool mHover;
@@ -89,6 +91,8 @@ class Group
 	GdkPixbuf* mIconPixbuf;
 
 	void setTopWindow(GroupWindow* groupWindow);
+
+	void checkWindowStates();
 
 	bool mActive;
 	bool mDropHover;

@@ -29,7 +29,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	mWindowsCount.setup(
 		0, [this]() -> uint {
 			uint count = 0;
-			mWindows.findIf([&count](GroupWindow* e) -> bool {
+			mWindows.findIf([&count, this](GroupWindow* e) -> bool {
 				if(e == nullptr)
 				{
 					std::cerr << "found a nullptr GroupWindow*" << std::endl;
@@ -37,14 +37,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 				}
 				if (!e->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST))
 				{
-					if(Settings::showOnlyWindowsInCurrentWorkspace)
-					{
-						if(e->inCurrentWorkspace())
-						{
-							++count;
-						}
-					}
-					else
+					if(windowMeetsCriteria(e))
 					{
 						++count;
 					}
@@ -55,6 +48,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 			return count; },
 		[this](uint windowsCount) -> void {
 			updateStyle();
+			checkWindowStates();
 			electNewTopWindow();
 			if (windowsCount < 1 && !mPinned)
 			{
@@ -780,12 +774,7 @@ void Group::electNewTopWindow()
 		GroupWindow* newTopWindow = nullptr;
 
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
-			if (Settings::showOnlyWindowsInCurrentWorkspace)
-			{
-				return info->mGroupWindow->mGroup == this && info->mGroupWindow->inCurrentWorkspace();
-			}
-			else
-				return info->mGroupWindow->mGroup == this;
+			return windowMeetsCriteria(info->mGroupWindow);
 		});
 
 		if (iter == Wnck::mWindows.end())
@@ -807,6 +796,7 @@ void Group::electNewTopWindow()
 
 void Group::onWindowActivate(GroupWindow* groupWindow)
 {
+	if(!windowMeetsCriteria(groupWindow)) return;
 	mActive = true;
 	setStyle(Style::Focus, true);
 
@@ -1103,4 +1093,31 @@ void Group::onDragBegin(GdkDragContext* context)
 double Group::degreesToRadians(double degrees)
 {
 	return degrees * (M_PI/180);
+}
+
+bool Group::windowMeetsCriteria(GroupWindow* window)
+{
+	if(Settings::showOnlyWindowsInCurrentWorkspace && Settings::showOnlyWindowsOnCurrentMoniter)
+	{
+		return window->inCurrentWorkspace() && window->onCurrentMonitor();
+	}
+	else if(Settings::showOnlyWindowsInCurrentWorkspace)
+	{
+		return window->inCurrentWorkspace();
+	}
+	else if(Settings::showOnlyWindowsOnCurrentMoniter)
+	{
+		return window->onCurrentMonitor();
+	}
+	return true;
+}
+
+void Group::checkWindowStates()
+{
+	mWindows.forEach([this](GroupWindow* window){
+		if(wnck_window_is_active(window->mWnckWindow))
+		{
+			onWindowActivate(window);
+		}
+	});
 }

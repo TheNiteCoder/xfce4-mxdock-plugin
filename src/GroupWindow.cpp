@@ -52,6 +52,12 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 		}),
 		this);
 
+	g_signal_connect(G_OBJECT(mWnckWindow), "geometry-changed",
+		G_CALLBACK(+[](WnckWindow* window, GroupWindow* me) {
+			me->mGroup->mWindowsCount.updateState();
+			me->mGroup->mWindowsCount.forceFeedback();
+		}), this);
+
 	// 	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed",
 	// 			G_CALLBACK(+[](WnckScreen* screen, GroupWindow* me){
 	// 				me->mGroup->mWindowsCount.updateState();
@@ -146,6 +152,16 @@ void GroupWindow::updateState(ushort state, ushort changeMask)
 bool GroupWindow::inCurrentWorkspace()
 {
 	return Wnck::inCurrentWorkspace(this);
+}
+
+bool GroupWindow::onCurrentMonitor()
+{
+	GdkDisplay* display = gdk_display_get_default();
+	GdkWindow* dock = gtk_widget_get_window(GTK_WIDGET(Dock::mBox));
+	gint x,y,w,h;
+	wnck_window_get_geometry(mWnckWindow, &x, &y, &w, &h);
+	return gdk_display_get_monitor_at_window(display, dock) ==
+		gdk_display_get_monitor_at_point(display, x + (w / 2), y + (h / 2));
 }
 
 bool GroupWindow::visible()
