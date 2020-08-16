@@ -52,6 +52,8 @@ class GroupWindow
 	GroupMenuItem* mGroupMenuItem;
 	int mWorkspaceID;
 
+	GdkRectangle mPreviousGeometry;
+
 	void updateState(unsigned short state, unsigned short changeMask = USHRT_MAX);
 	unsigned short mState;
 };

@@ -192,6 +192,12 @@ namespace Wnck
 			if (workspace != nullptr)
 				wnck_workspace_activate(workspace, timestamp);
 		}
+		if(!WNCK_IS_WINDOW(groupWindow->mWnckWindow))
+		{
+			std::cerr << "groupWindow->mWnckWindow isn't a window: "
+				<< groupWindow->mAppInfo->name << std::endl;
+			return;
+		}
 		wnck_window_activate(groupWindow->mWnckWindow, timestamp);
 	}
 
