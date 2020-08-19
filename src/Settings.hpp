@@ -23,6 +23,7 @@ namespace Settings
 	extern State<int> iconSize;
 	extern State<bool> noWindowsListIfSingle;
 	extern State<int> indicatorStyle;
+	extern State<GdkRGBA*> indicatorColor;
 	extern State<std::list<std::string>> pinnedAppList;
 	extern State<bool> showOnlyWindowsInCurrentWorkspace;
 	extern State<bool> reverseIndicatorSide;

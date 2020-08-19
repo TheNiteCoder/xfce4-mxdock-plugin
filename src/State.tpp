@@ -52,6 +52,7 @@ class LogicalState
 	}
 
 	operator V() const { return v; }
+	operator V*() const { return v; }
 
 	void forceFeedback()
 	{

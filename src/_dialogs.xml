@@ -144,18 +144,6 @@
                     <property name="row_spacing">6</property>
                     <property name="column_spacing">12</property>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Indicator style :</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkComboBoxText" id="co_indicatorStyle">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -170,17 +158,47 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="c_forceIconSize">
-                        <property name="label" translatable="yes">Force icons size :</property>
+                      <object class="GtkToggleButton" id="c_reverseIndicatorSide">
+                        <property name="label" translatable="yes">Reverse Indicator Side</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0</property>
-                        <property name="draw_indicator">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
                       </object>
                       <packing>
                         <property name="left_attach">0</property>
+                        <property name="top_attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Indicator Style:</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Indicator Color:</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkColorButton" id="cp_indicatorColor">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
                         <property name="top_attach">1</property>
                       </packing>
                     </child>
@@ -206,15 +224,18 @@
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="top_attach">1</property>
+                        <property name="top_attach">2</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="c_reverseIndicatorSide">
-                        <property name="label" translatable="yes">Reverse Indicator Side</property>
+                      <object class="GtkCheckButton" id="c_forceIconSize">
+                        <property name="label" translatable="yes">Force icons size :</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">False</property>
                       </object>
                       <packing>
                         <property name="left_attach">0</property>

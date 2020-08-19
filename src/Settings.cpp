@@ -9,6 +9,7 @@ namespace Settings
 	State<int> iconSize;
 	State<bool> noWindowsListIfSingle;
 	State<int> indicatorStyle;
+	State<GdkRGBA*> indicatorColor;
 	State<std::list<std::string>> pinnedAppList;
 	State<bool> showOnlyWindowsInCurrentWorkspace;
 	State<bool> reverseIndicatorSide;
@@ -40,6 +41,19 @@ namespace Settings
 		indicatorStyle.setup(g_key_file_get_integer(mFile, "user", "indicatorStyle", nullptr),
 			[](int indicatorStyle) -> void {
 				g_key_file_set_integer(mFile, "user", "indicatorStyle", indicatorStyle);
+				saveFile();
+
+				Dock::redraw();
+			});
+
+		gchar* colorString = g_key_file_get_string(mFile, "user", "indicatorColor", NULL);
+		GdkRGBA* color = (GdkRGBA*)malloc(sizeof(GdkRGBA));
+		if (colorString == NULL || !gdk_rgba_parse(color, colorString))
+			gdk_rgba_parse(color, "rgb(76,166,230)");
+
+		indicatorColor.setup(color,
+			[](GdkRGBA* indicatorColor) -> void {
+				g_key_file_set_string(mFile, "user", "indicatorColor", gdk_rgba_to_string(indicatorColor));
 				saveFile();
 
 				Dock::redraw();
