@@ -78,17 +78,19 @@ namespace SettingsDialog
 		GObject* reverseIndicatorSide = gtk_builder_get_object(builder, "c_reverseIndicatorSide");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(reverseIndicatorSide), Settings::reverseIndicatorSide);
 		g_signal_connect(reverseIndicatorSide, "toggled",
-			G_CALLBACK(+[](GtkToggleButton* btn){
+			G_CALLBACK(+[](GtkToggleButton* btn) {
 				Settings::reverseIndicatorSide.set(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(btn)));
-			}), nullptr);
+			}),
+			nullptr);
 
 		GObject* showOnlyWindowsOnCurrentMoniter = gtk_builder_get_object(builder, "c_onlyShowWindowsOnCurrentMoniter");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(showOnlyWindowsOnCurrentMoniter), Settings::showOnlyWindowsOnCurrentMoniter);
 		g_signal_connect(showOnlyWindowsOnCurrentMoniter, "toggled",
-			G_CALLBACK(+[](GtkToggleButton* btn){
+			G_CALLBACK(+[](GtkToggleButton* btn) {
 				Settings::showOnlyWindowsOnCurrentMoniter.set(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(btn)));
 				Dock::updateGroupsWindowCount();
-			}), nullptr);
+			}),
+			nullptr);
 
 		return;
 

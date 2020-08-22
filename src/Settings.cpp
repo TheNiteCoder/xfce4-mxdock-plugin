@@ -56,7 +56,7 @@ namespace Settings
 				g_key_file_set_boolean(mFile, "user", "showOnlyWindowsInCurrentWorkspace", showOnlyWindowsInCurrentWorkspace);
 				saveFile();
 			});
-	
+
 		reverseIndicatorSide.setup(g_key_file_get_boolean(mFile, "user", "reverseIndicatorSide", nullptr),
 			[](bool reverseIndicatorSide) -> void {
 				g_key_file_set_boolean(mFile, "user", "reverseIndicatorSide", reverseIndicatorSide);

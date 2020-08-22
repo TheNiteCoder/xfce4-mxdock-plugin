@@ -56,7 +56,9 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 		G_CALLBACK(+[](WnckWindow* window, GroupWindow* me) {
 			me->mGroup->mWindowsCount.updateState();
 			me->mGroup->mWindowsCount.forceFeedback();
-		}), this);
+			me->mGroup->checkWindowStates();
+		}),
+		this);
 
 	// 	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed",
 	// 			G_CALLBACK(+[](WnckScreen* screen, GroupWindow* me){
@@ -101,7 +103,7 @@ void GroupWindow::leaveGroup(Group* group) { group->remove(this); }
 
 void GroupWindow::onActivate()
 {
-	Help::Gtk::cssClassAdd(GTK_WIDGET(mGroupMenuItem->mItem), "active");
+	Help::Gtk::cssClassAdd(GTK_WIDGET(mGroupMenuItem->mItem), const_cast<char*>("active"));
 	gtk_widget_queue_draw(GTK_WIDGET(mGroupMenuItem->mItem));
 
 	mGroup->onWindowActivate(this);
@@ -109,7 +111,7 @@ void GroupWindow::onActivate()
 
 void GroupWindow::onUnactivate()
 {
-	Help::Gtk::cssClassRemove(GTK_WIDGET(mGroupMenuItem->mItem), "active");
+	Help::Gtk::cssClassRemove(GTK_WIDGET(mGroupMenuItem->mItem), const_cast<char*>("active"));
 	gtk_widget_queue_draw(GTK_WIDGET(mGroupMenuItem->mItem));
 
 	mGroup->onWindowUnactivate();
@@ -142,7 +144,7 @@ void GroupWindow::updateState(ushort state, ushort changeMask)
 
 		if (state & WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST)
 			gtk_widget_hide(GTK_WIDGET(mGroupMenuItem->mItem));
-		if (Settings::showOnlyWindowsInCurrentWorkspace && !inCurrentWorkspace())
+		if (!mGroup->windowMeetsCriteria(this))
 			gtk_widget_hide(GTK_WIDGET(mGroupMenuItem->mItem));
 		else
 			gtk_widget_show(GTK_WIDGET(mGroupMenuItem->mItem));
@@ -157,8 +159,12 @@ bool GroupWindow::inCurrentWorkspace()
 bool GroupWindow::onCurrentMonitor()
 {
 	GdkDisplay* display = gdk_display_get_default();
-	GdkWindow* dock = gtk_widget_get_window(GTK_WIDGET(Dock::mBox));
-	gint x,y,w,h;
+	GdkWindow* dock = gtk_widget_get_window(GTK_WIDGET(Plugin::mXfPlugin));
+	if (!GDK_IS_WINDOW(dock))
+	{
+		return true;
+	}
+	gint x, y, w, h;
 	wnck_window_get_geometry(mWnckWindow, &x, &y, &w, &h);
 	return gdk_display_get_monitor_at_window(display, dock) ==
 		gdk_display_get_monitor_at_point(display, x + (w / 2), y + (h / 2));
@@ -167,4 +173,9 @@ bool GroupWindow::onCurrentMonitor()
 bool GroupWindow::visible()
 {
 	return inCurrentWorkspace();
+}
+
+bool GroupWindow::meetsCriteria()
+{
+	return mGroup->windowMeetsCriteria(this);
 }

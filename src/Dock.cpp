@@ -76,6 +76,7 @@ namespace Dock
 		mGroups.forEach([=](std::pair<AppInfo*, Group*> g) {
 			g.second->mWindowsCount.updateState();
 			g.second->mWindowsCount.forceFeedback();
+			g.second->checkWindowStates();
 		});
 	}
 

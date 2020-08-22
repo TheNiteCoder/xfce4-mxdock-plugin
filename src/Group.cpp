@@ -32,12 +32,12 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 			mWindows.findIf([&count, this](GroupWindow* e) -> bool {
 				if(e == nullptr)
 				{
-					std::cerr << "found a nullptr GroupWindow*" << std::endl;
+					std::cerr << "mxdock: found a nullptr GroupWindow*" << std::endl;
 					return false;
 				}
 				if (!e->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST))
 				{
-					if(windowMeetsCriteria(e))
+					if(e->meetsCriteria())
 					{
 						++count;
 					}
@@ -48,7 +48,6 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 			return count; },
 		[this](uint windowsCount) -> void {
 			updateStyle();
-			checkWindowStates();
 			electNewTopWindow();
 			if (windowsCount < 1 && !mPinned)
 			{
@@ -221,13 +220,16 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	}
 
 	resize();
+	checkWindowStates();
+	mWindowsCount.updateState();
+	mWindowsCount.forceFeedback();
 }
 
 void Group::add(GroupWindow* window)
 {
 	mWindows.push(window);
+
 	mWindowsCount.updateState();
-	mWindowsCount.forceFeedback();
 
 	mGroupMenu.add(window->mGroupMenuItem);
 
@@ -251,7 +253,6 @@ void Group::remove(GroupWindow* window)
 
 	mWindowsCount.updateState();
 	mWindowsCount.forceFeedback();
-	electNewTopWindow(); // TODEL
 
 	setStyle(Style::Focus, false);
 }
@@ -372,19 +373,18 @@ void Group::onDraw(cairo_t* cr)
 				cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
 #ifdef VERTICAL_BAR_ENABLED
-			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) || 
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, w * 0.9231, 0, w, h);
 			}
 			else if (mDockPosition == DockPosition::Left ||
-					(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+				(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, 0, 0, w * 0.0769, h);
 			}
-			else if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) || 
-					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating)
-					 && Settings::reverseIndicatorSide))
+			else if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
+				((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && Settings::reverseIndicatorSide))
 			{
 				cairo_rectangle(cr, 0, 0, w, h * 0.0769);
 			}
@@ -402,12 +402,12 @@ void Group::onDraw(cairo_t* cr)
 			if (mSMany && (mSOpened || mSHover))
 			{
 				if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-						(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
 				}
 				else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
-						(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+					(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
 				}
@@ -423,7 +423,7 @@ void Group::onDraw(cairo_t* cr)
 			int x1, x2;
 			cairo_pattern_t* pat;
 			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide && true) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide && true))
+				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide && true))
 			{
 				x1 = 0;
 				x2 = (int)w * 0.12;
@@ -439,8 +439,8 @@ void Group::onDraw(cairo_t* cr)
 			cairo_pattern_t* pat = cairo_pattern_create_linear(x1, 0, w, 0);
 #endif
 
-			if((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
 				cairo_pattern_add_color_stop_rgba(pat, 0.7, 0, 0, 0, 0.15);
 				cairo_pattern_add_color_stop_rgba(pat, 0.8, 0, 0, 0, 0.35);
@@ -456,15 +456,15 @@ void Group::onDraw(cairo_t* cr)
 			if (aBack > 0) // if hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				 if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+				if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
 					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
-				 {
+				{
 					cairo_rectangle(cr, x1, 0, x2, h);
-				 }
-				 else
-				 {
-					 cairo_rectangle(cr, x1, 0, x2, h);
-				 }
+				}
+				else
+				{
+					cairo_rectangle(cr, x1, 0, x2, h);
+				}
 #else
 				cairo_rectangle(cr, x1, 0, w, h);
 #endif
@@ -472,25 +472,23 @@ void Group::onDraw(cairo_t* cr)
 			else // if not hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
-						((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating)
-						 && Settings::reverseIndicatorSide))
+				if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
+					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, x1, 0, x2, h * 0.0769);
 				}
-				else if(((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating)
-							&& !Settings::reverseIndicatorSide) ||
-						(mDockPosition == DockPosition::Top && Settings::reverseIndicatorSide))
+				else if (((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Top && Settings::reverseIndicatorSide))
 				{
 					cairo_rectangle(cr, x1, h * 0.9231, x2, h);
 				}
 				//if (mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
 				//{
-					//cairo_rectangle(cr, x1, 0, x2, h);
+				//cairo_rectangle(cr, x1, 0, x2, h);
 				//}
 				//else
 				//{
-					//cairo_rectangle(cr, x1, 0, x2, h);
+				//cairo_rectangle(cr, x1, 0, x2, h);
 				//}
 #else
 				cairo_rectangle(cr, x1, h * 0.9231, w, h);
@@ -501,9 +499,9 @@ void Group::onDraw(cairo_t* cr)
 			//cairo_pattern_add_color_stop_rgba(pat, 0.3, 0, 0, 0, 0.15);
 
 			//if (aBack > 0)
-				//cairo_rectangle(cr, x1, 0, w, h);
+			//cairo_rectangle(cr, x1, 0, w, h);
 			//else
-				//cairo_rectangle(cr, x1, round(h * 0.9231), w, h);
+			//cairo_rectangle(cr, x1, round(h * 0.9231), w, h);
 
 			cairo_set_source(cr, pat);
 			cairo_fill(cr);
@@ -519,14 +517,14 @@ void Group::onDraw(cairo_t* cr)
 #ifdef VERTICAL_BAR_ENABLED
 			double epos;
 			if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+				(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 				epos = w * 0.01;
 			else if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 				epos = w * 0.99;
-			else if((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) || 
-					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) &&
-					 Settings::reverseIndicatorSide))
+			else if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
+				((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) &&
+					Settings::reverseIndicatorSide))
 				epos = h * 0.01;
 			else
 				epos = h * 0.99;
@@ -724,25 +722,15 @@ void Group::setMouseLeaveTimeout()
 void Group::updateStyle()
 {
 	// Hide menu items
-	if (Settings::showOnlyWindowsInCurrentWorkspace)
+	for (auto pair : mGroupMenu.mItemWindowPairs)
 	{
-		for (auto pair : mGroupMenu.mItemWindowPairs)
-		{
-			if (pair.second->inCurrentWorkspace())
-			{
-				gtk_widget_show(GTK_WIDGET(pair.first));
-			}
-			else
-			{
-				gtk_widget_hide(GTK_WIDGET(pair.first));
-			}
-		}
-	}
-	else // ensure all menu items are shown
-	{
-		for (auto pair : mGroupMenu.mItemWindowPairs)
+		if (pair.second->mGroup->windowMeetsCriteria(pair.second))
 		{
 			gtk_widget_show(GTK_WIDGET(pair.first));
+		}
+		else
+		{
+			gtk_widget_hide(GTK_WIDGET(pair.first));
 		}
 	}
 
@@ -774,7 +762,7 @@ void Group::electNewTopWindow()
 		GroupWindow* newTopWindow = nullptr;
 
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
-			return windowMeetsCriteria(info->mGroupWindow);
+			return windowMeetsCriteria(info->mGroupWindow) && info->mGroupWindow->mGroup == this;
 		});
 
 		if (iter == Wnck::mWindows.end())
@@ -796,7 +784,9 @@ void Group::electNewTopWindow()
 
 void Group::onWindowActivate(GroupWindow* groupWindow)
 {
-	if(!windowMeetsCriteria(groupWindow)) return;
+	if (!windowMeetsCriteria(groupWindow))
+		return;
+
 	mActive = true;
 	setStyle(Style::Focus, true);
 
@@ -811,15 +801,18 @@ void Group::onWindowUnactivate()
 
 void Group::setTopWindow(GroupWindow* groupWindow)
 {
-	if(groupWindow == nullptr) std::cerr << "New top window for group " << mAppInfo->name << " is NULL" << std::endl;
+	if (groupWindow == nullptr)
+		std::cerr << "mxdock: no new window for group " << mAppInfo->name << std::endl;
 	mTopWindow = groupWindow;
 }
 
 void Group::onButtonPress(GdkEventButton* event)
 {
-
 	if (event->button != 3)
+	{
+		//std::cerr << "mxdock(DEBUG): Visible Windows Count: " << mWindowsCount << std::endl;
 		return;
+	}
 
 	if (mWindowsCount == 0 || mTopWindow == nullptr)
 	{
@@ -940,7 +933,7 @@ void Group::onButtonRelease(GdkEventButton* event)
 		}
 		else
 		{
-			std::cerr << "mTopWindow is NULL" << std::endl;
+			std::cerr << "mxdock: no top window for " << mAppInfo->name << std::endl;
 		}
 	}
 }
@@ -963,7 +956,7 @@ void Group::onScroll(GdkEventScroll* event)
 		if (Settings::showOnlyWindowsInCurrentWorkspace)
 		{
 			filtered.remove_if([](Wnck::WindowInfo* wi) {
-				return !wi->mGroupWindow->inCurrentWorkspace();
+				return !wi->mGroupWindow->mGroup->windowMeetsCriteria(wi->mGroupWindow);
 			});
 		}
 
@@ -1092,32 +1085,28 @@ void Group::onDragBegin(GdkDragContext* context)
 
 double Group::degreesToRadians(double degrees)
 {
-	return degrees * (M_PI/180);
+	return degrees * (M_PI / 180);
 }
 
 bool Group::windowMeetsCriteria(GroupWindow* window)
 {
-	if(Settings::showOnlyWindowsInCurrentWorkspace && Settings::showOnlyWindowsOnCurrentMoniter)
+	bool result = true;
+	if (Settings::showOnlyWindowsInCurrentWorkspace && Settings::showOnlyWindowsOnCurrentMoniter)
 	{
-		return window->inCurrentWorkspace() && window->onCurrentMonitor();
+		result = window->inCurrentWorkspace() && window->onCurrentMonitor();
 	}
-	else if(Settings::showOnlyWindowsInCurrentWorkspace)
+	else if (Settings::showOnlyWindowsInCurrentWorkspace)
 	{
-		return window->inCurrentWorkspace();
+		result = window->inCurrentWorkspace();
 	}
-	else if(Settings::showOnlyWindowsOnCurrentMoniter)
+	else if (Settings::showOnlyWindowsOnCurrentMoniter)
 	{
-		return window->onCurrentMonitor();
+		result = window->onCurrentMonitor();
 	}
-	return true;
+	return result;
 }
 
 void Group::checkWindowStates()
 {
-	mWindows.forEach([this](GroupWindow* window){
-		if(wnck_window_is_active(window->mWnckWindow))
-		{
-			onWindowActivate(window);
-		}
-	});
+	Wnck::setActiveWindow();
 }

@@ -186,18 +186,6 @@ namespace Wnck
 
 	void activate(GroupWindow* groupWindow, guint32 timestamp)
 	{
-		if (!groupWindow->inCurrentWorkspace())
-		{
-			WnckWorkspace* workspace = wnck_window_get_workspace(groupWindow->mWnckWindow);
-			if (workspace != nullptr)
-				wnck_workspace_activate(workspace, timestamp);
-		}
-		if(!WNCK_IS_WINDOW(groupWindow->mWnckWindow))
-		{
-			std::cerr << "groupWindow->mWnckWindow isn't a window: "
-				<< groupWindow->mAppInfo->name << std::endl;
-			return;
-		}
 		wnck_window_activate(groupWindow->mWnckWindow, timestamp);
 	}
 

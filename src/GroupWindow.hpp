@@ -42,6 +42,8 @@ class GroupWindow
 	bool inCurrentWorkspace();
 	bool onCurrentMonitor();
 
+	bool meetsCriteria();
+
 	Group* mGroup;
 
 	// TODO disabled during upstream merge
