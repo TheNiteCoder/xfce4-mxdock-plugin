@@ -731,7 +731,7 @@ void Group::updateStyle()
 	// Hide menu items
 	for (auto pair : mGroupMenu.mItemWindowPairs)
 	{
-		if (pair.second->mGroup->windowMeetsCriteria(pair.second))
+		if (pair.second->mGroup->windowMeetsCriteria(pair.second) && !pair.second->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST))
 		{
 			gtk_widget_show(GTK_WIDGET(pair.first));
 		}
