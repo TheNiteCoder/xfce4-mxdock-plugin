@@ -102,7 +102,7 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 				me->onButtonRelease(event);
 				return true;
 			}
-			else if(event->button == 2) // 2 is middle button
+			else if (event->button == 2) // 2 is middle button
 			{
 				me->closeAll();
 				return true;
@@ -408,18 +408,18 @@ void Group::onDraw(cairo_t* cr)
 			// handle having an extra blip if there are serveral windows in group
 			//if (mSMany && (mSOpened || mSHover))
 			//{
-				//if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					//(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
-				//{
-					//cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
-				//}
-				//else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
-					//(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
-				//{
-					//cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
-				//}
-				//cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
-				//cairo_fill(cr);
+			//if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+			//(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			//{
+			//cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
+			//}
+			//else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
+			//(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+			//{
+			//cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
+			//}
+			//cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
+			//cairo_fill(cr);
 			//}
 #endif
 		}
@@ -954,8 +954,6 @@ void Group::onButtonRelease(GdkEventButton* event)
 
 void Group::onScroll(GdkEventScroll* event)
 {
-	return; // feature not complete
-
 	if (mPinned && mWindowsCount == 0)
 		return;
 
@@ -966,36 +964,52 @@ void Group::onScroll(GdkEventScroll* event)
 	}
 	else
 	{
-		std::list<Wnck::WindowInfo*> filtered = Wnck::mWindows;
-		if (Settings::showOnlyWindowsInCurrentWorkspace)
+		std::list<GroupWindow*> filtered = mWindows.underlying();
+		filtered.remove_if([this](GroupWindow* wi) {
+			return !wi->mGroup->windowMeetsCriteria(wi) || wi->mGroup != this;
+		});
+
+		if(filtered.size() == 0) return;
+
+		auto current = std::find_if(filtered.begin(), filtered.end(), [=](GroupWindow* wi) {
+			return wi == mTopWindow;
+		});
+
+		// If failed to find top window activate first one
+		if(current == filtered.end())
 		{
-			filtered.remove_if([](Wnck::WindowInfo* wi) {
-				return !wi->mGroupWindow->mGroup->windowMeetsCriteria(wi->mGroupWindow);
-			});
+			filtered.front()->activate(event->time);
+			setTopWindow(filtered.front());
 		}
 
 		if (event->direction == GDK_SCROLL_UP)
 		{
-			std::reverse(filtered.begin(), filtered.end());
+			if(++current == filtered.end())
+			{
+				filtered.front()->activate(event->time);
+				setTopWindow(filtered.front());
+			}
+			else
+			{
+				GroupWindow* window = (*current);
+				window->activate(event->time);
+				setTopWindow(window);
+			}
 		}
-
-		auto current = std::find_if(filtered.begin(), filtered.end(), [=](Wnck::WindowInfo* wi) {
-			return wi->mGroupWindow == mTopWindow;
-		});
-
-		if (current == filtered.end())
-			return;
-
-		std::rotate(filtered.begin(), current, filtered.end());
-
-		auto nextWindow = std::find_if(filtered.begin(), filtered.end(), [this](Wnck::WindowInfo* wi) {
-			return wi->mGroupWindow->mGroup == this;
-		});
-		if (nextWindow == filtered.end())
-			return;
-		Wnck::WindowInfo* wi = *nextWindow;
-		wi->mGroupWindow->activate(event->time);
-		setTopWindow(wi->mGroupWindow);
+		else if(event->direction == GDK_SCROLL_DOWN)
+		{
+			if(--current == filtered.end())
+			{
+				filtered.back()->activate(event->time);
+				setTopWindow(filtered.back());
+			}
+			else
+			{
+				GroupWindow* window = (*current);
+				window->activate(event->time);
+				setTopWindow(window);
+			}
+		}
 
 		// TODO make this work
 		//  		if(event->direction == GDK_SCROLL_UP)
@@ -1127,11 +1141,11 @@ void Group::checkWindowStates()
 
 void Group::closeAll()
 {
-	mWindows.forEach([](GroupWindow* window){
-		if(window->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST)) return;
+	mWindows.forEach([](GroupWindow* window) {
+		if (window->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST))
+			return;
 		Wnck::close(window, 0);
 	});
 	mWindowsCount.updateState();
 	mWindowsCount.forceFeedback();
 }
-

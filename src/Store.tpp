@@ -134,6 +134,8 @@ namespace Store
 
 		uint size() { return mList.size(); }
 
+		std::list<V> underlying() const { return mList; }
+
 	  private:
 		std::list<V> mList;
 	};
