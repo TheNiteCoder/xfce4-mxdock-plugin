@@ -97,10 +97,17 @@ Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
 	g_signal_connect(
 		G_OBJECT(mButton), "button-release-event",
 		G_CALLBACK(+[](GtkWidget* widget, GdkEventButton* event, Group* me) {
-			if (event->button != 1)
-				return false;
-			me->onButtonRelease(event);
-			return true;
+			if (event->button == 1) // 1 is left button
+			{
+				me->onButtonRelease(event);
+				return true;
+			}
+			else if(event->button == 2) // 2 is middle button
+			{
+				me->closeAll();
+				return true;
+			}
+			return false;
 		}),
 		this);
 
@@ -1117,3 +1124,14 @@ void Group::checkWindowStates()
 {
 	Wnck::setActiveWindow();
 }
+
+void Group::closeAll()
+{
+	mWindows.forEach([](GroupWindow* window){
+		if(window->getState(WnckWindowState::WNCK_WINDOW_STATE_SKIP_TASKLIST)) return;
+		Wnck::close(window, 0);
+	});
+	mWindowsCount.updateState();
+	mWindowsCount.forceFeedback();
+}
+

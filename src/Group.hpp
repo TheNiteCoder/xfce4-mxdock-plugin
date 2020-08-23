@@ -71,6 +71,8 @@ class Group
 
 	void activate(guint32 timestamp);
 
+	void closeAll();
+
 	bool mHover;
 	bool mPinned;
 	GtkWidget* mButton;
