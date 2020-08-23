@@ -399,21 +399,21 @@ void Group::onDraw(cairo_t* cr)
 
 #ifdef VERTICAL_BAR_ENABLED
 			// handle having an extra blip if there are serveral windows in group
-			if (mSMany && (mSOpened || mSHover))
-			{
-				if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
-				{
-					cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
-				}
-				else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
-				{
-					cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
-				}
-				cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
-				cairo_fill(cr);
-			}
+			//if (mSMany && (mSOpened || mSHover))
+			//{
+				//if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+					//(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				//{
+					//cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
+				//}
+				//else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
+					//(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+				//{
+					//cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
+				//}
+				//cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
+				//cairo_fill(cr);
+			//}
 #endif
 		}
 
@@ -422,25 +422,26 @@ void Group::onDraw(cairo_t* cr)
 #ifdef VERTICAL_BAR_ENABLED
 			int x1, x2;
 			cairo_pattern_t* pat;
-			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide && true) ||
-				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide && true))
+			if ((mDockPosition == DockPosition::Right) ||
+				(mDockPosition == DockPosition::Left))
 			{
 				x1 = 0;
-				x2 = (int)w * 0.12;
+				x2 = (int)h * 0.12;
+				pat = cairo_pattern_create_linear(0, x1, 0, x2);
 			}
 			else
 			{
 				x1 = (int)w * 0.88;
 				x2 = w;
+				pat = cairo_pattern_create_linear(x1, 0, x2, 0);
 			}
-			pat = cairo_pattern_create_linear(x1, 0, x2, 0);
 #else
 			int x1 = (int)w * 0.88;
 			cairo_pattern_t* pat = cairo_pattern_create_linear(x1, 0, w, 0);
 #endif
 
-			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			if ((mDockPosition == DockPosition::Right) ||
+				(mDockPosition == DockPosition::Left))
 			{
 				cairo_pattern_add_color_stop_rgba(pat, 0.7, 0, 0, 0, 0.15);
 				cairo_pattern_add_color_stop_rgba(pat, 0.8, 0, 0, 0, 0.35);
@@ -456,10 +457,10 @@ void Group::onDraw(cairo_t* cr)
 			if (aBack > 0) // if hovering or active
 			{
 #ifdef VERTICAL_BAR_ENABLED
-				if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				if ((mDockPosition == DockPosition::Right) ||
+					(mDockPosition == DockPosition::Left))
 				{
-					cairo_rectangle(cr, x1, 0, x2, h);
+					cairo_rectangle(cr, 0, x1, w, x2);
 				}
 				else
 				{
@@ -482,10 +483,16 @@ void Group::onDraw(cairo_t* cr)
 				{
 					cairo_rectangle(cr, x1, h * 0.9231, x2, h);
 				}
-				//if (mDockPosition == DockPosition::Right || mDockPosition == DockPosition::Left)
-				//{
-				//cairo_rectangle(cr, x1, 0, x2, h);
-				//}
+				else if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				{
+					cairo_rectangle(cr, w * 0.9231, x1, w, x2);
+				}
+				else if ((mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide) ||
+					(mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide))
+				{
+					cairo_rectangle(cr, 0, x1, w * 0.0769, x2);
+				}
 				//else
 				//{
 				//cairo_rectangle(cr, x1, 0, x2, h);
