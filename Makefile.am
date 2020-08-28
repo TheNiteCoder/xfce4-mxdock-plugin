@@ -9,7 +9,7 @@
 
 @SET_MAKE@
 
-SUBDIRS = src
+SUBDIRS = src po
 
 # Installing the plugin's desktop file in the correct place
 #desktopdir = $(datadir)/xfce4/panel/plugins

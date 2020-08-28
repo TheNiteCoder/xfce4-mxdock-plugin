@@ -253,7 +253,7 @@ namespace Wnck
 
 		if (!appInfo->path.empty())
 		{
-			GtkWidget* launchAnother = gtk_menu_item_new_with_label((groupWindow != nullptr) ? "Launch another" : "Launch");
+			GtkWidget* launchAnother = gtk_menu_item_new_with_label((groupWindow != nullptr) ? N_("Launch another") : N_("Launch"));
 
 			gtk_widget_show(launchAnother);
 
@@ -268,7 +268,7 @@ namespace Wnck
 			if (group != nullptr)
 			{
 				GtkWidget* separator = gtk_separator_menu_item_new();
-				GtkWidget* pinToggle = gtk_menu_item_new_with_label(group->mPinned ? "Unpin" : "Pin");
+				GtkWidget* pinToggle = gtk_menu_item_new_with_label(group->mPinned ? N_("Unpin") : N_("Pin"));
 
 				gtk_widget_show(separator);
 				gtk_widget_show(pinToggle);
@@ -288,7 +288,7 @@ namespace Wnck
 
 			if (group != nullptr && group->mWindowsCount > 1)
 			{
-				GtkWidget* closeAll = gtk_menu_item_new_with_label("Close All");
+				GtkWidget* closeAll = gtk_menu_item_new_with_label(N_("Close All"));
 				gtk_widget_show(closeAll);
 				gtk_menu_shell_append(GTK_MENU_SHELL(menu), closeAll);
 

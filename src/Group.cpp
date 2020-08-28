@@ -6,7 +6,7 @@
 
 #include "config.h"
 
-static GtkTargetEntry entries[1] = {{"application/docklike_group", 0, 0}};
+static GtkTargetEntry entries[1] = {{const_cast<char*>("application/docklike_group"), 0, 0}};
 static GtkTargetList* targetList = gtk_target_list_new(entries, 1);
 
 Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)

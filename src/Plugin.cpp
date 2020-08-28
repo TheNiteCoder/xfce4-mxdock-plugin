@@ -73,5 +73,8 @@ namespace Plugin
 
 extern "C" void construct(XfcePanelPlugin* xfPlugin)
 {
+	setlocale(LC_ALL, "");
+	bindtextdomain(PACKAGE, PACKAGE_LOCALE_DIR);
+	textdomain(PACKAGE);
 	Plugin::init(xfPlugin);
 }

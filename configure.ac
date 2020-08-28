@@ -8,14 +8,22 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
+
+dnl Replaces AC_PROG_INTLTOOL
+IT_PROG_INTLTOOL([0.35.0])
+
 #IT_PROG_INTLTOOL([0.40.0])
 AM_PROG_AR
 
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+
 dnl Vertical status bar option
 AC_ARG_ENABLE([vertical_bar],
-			  AS_HELP_STRING([--enable-vertical-bar], [Enable vertical bar]))
+			  AS_HELP_STRING([--disable-vertical-bar], [Disable vertical bar]))
 
-AS_IF([test "x$enable_vertical_bar" = "xyes"], [
+AS_IF([test "x$enable_vertical_bar" != "xno"], [
 	dnl Doing stuff to enable feature
 	AC_DEFINE([VERTICAL_BAR_ENABLED], [1], [Vertical Bar Status is Enabled])
 ])
@@ -36,6 +44,9 @@ XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.12.0])
 
 dnl Check for i18n support
 XDT_I18N([@LINGUAS@])
+dnl XDT_I18N([de fr es ko nl no pl pt sl sv])
+
+XDT_FEATURE_DEBUG()
 
 dnl Checks for libraries
 PKG_CHECK_MODULES([WNCK], [libwnck-3.0 >= 3.30.0])
@@ -69,7 +80,9 @@ CPPFLAGS=${_cppflags}
 LDFLAGS=${_ldflags}
 
 dnl Create makefiles
-AC_CONFIG_FILES([Makefile 
+AC_CONFIG_FILES([
+		Makefile 
         src/Makefile
+		po/Makefile.in
 ])
 AC_OUTPUT

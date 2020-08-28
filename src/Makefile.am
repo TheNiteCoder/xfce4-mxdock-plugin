@@ -38,7 +38,8 @@ libmxdock_la_LDFLAGS = \
 
 libmxdock_la_CPPFLAGS = \
                         @LIBXFCE4PANEL_CFLAGS@ \
-                        @LIBXFCE4UI_CFLAGS@
+                        @LIBXFCE4UI_CFLAGS@ \
+						-DPACKAGE_LOCALE_DIR=\"$(localedir)\"
 
 libmxdock_la_LIBADD = \
                         @LIBXFCE4PANEL_LIBS@ \
@@ -57,4 +58,4 @@ _gresources.c: _gresources.xml _dialogs.xml
 # default configuration - 4.9.2 is bundled with Debian Jessie (2015),
 # presumably when 2020 comes around I can consider addition of the std
 # flag deprecated
-AM_CXXFLAGS = -DWNCK_I_KNOW_THIS_IS_UNSTABLE $(GTK_CFLAGS) $(CAIRO_CFLAGS) $(WNCK_CFLAGS) $(SENSORS_CFLAGS) --std=c++11 -DPACKAGE_LOCALE_DIR=\"$(localedir)\"
+AM_CXXFLAGS = -DWNCK_I_KNOW_THIS_IS_UNSTABLE $(GTK_CFLAGS) $(CAIRO_CFLAGS) $(WNCK_CFLAGS) $(SENSORS_CFLAGS) --std=c++11
