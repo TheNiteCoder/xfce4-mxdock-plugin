@@ -11,11 +11,15 @@
 #include "Helpers.hpp"
 #include "Store.tpp"
 
+#include <gio/gdesktopappinfo.h>
+
 struct AppInfo
 {
+	const GDesktopAppInfo* gAppInfo;
 	const std::string path;
 	const std::string icon;
 	const std::string name;
+	const std::list<std::string> actions;
 };
 
 namespace AppInfos
@@ -27,3 +31,4 @@ namespace AppInfos
 } // namespace AppInfos
 
 #endif
+

@@ -65,7 +65,16 @@ namespace AppInfos
 		if (name_ != nullptr)
 			name = name_;
 
-		AppInfo* info = new AppInfo({path, icon, name});
+		std::list<std::string> actions;
+
+		const char* const* action_list = g_desktop_app_info_list_actions(gAppInfo);
+		for(const char* iter = *action_list; iter; iter = *++action_list)
+		{
+			std::cerr << "mxdock: detected action for " << name << " '" << iter << "'" << std::endl;
+			actions.push_back({iter});
+		}
+
+		AppInfo* info = new AppInfo{gAppInfo, path, icon, name, actions};
 
 		id = Help::String::toLowercase(id);
 		mAppInfoIds.set(id, info);
@@ -226,7 +235,7 @@ namespace AppInfos
 				return ai;
 		}
 
-		return new AppInfo({"", "", id});
+		return new AppInfo({nullptr, "", "", id, {}});
 	}
 
 	void launch(AppInfo* appInfo) // TODO move to AppInfo struct

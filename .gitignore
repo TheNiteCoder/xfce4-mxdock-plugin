@@ -34,3 +34,4 @@ src/_gresources.c
 *.swp
 *.swo
 *.plist
+config.h.in*

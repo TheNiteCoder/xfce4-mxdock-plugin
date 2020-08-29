@@ -301,6 +301,30 @@ namespace Wnck
 					group);
 			}
 
+			if (appInfo->actions.size() > 0 && group->mTopWindow != nullptr)
+			{
+				GtkWidget* s = gtk_separator_menu_item_new();
+				gtk_widget_show(s);
+				gtk_menu_shell_append(GTK_MENU_SHELL(menu), s);
+				GtkWidget* actionsMenu = gtk_menu_new();
+				for (const std::string& action : appInfo->actions)
+				{
+					GtkWidget* actionWidget = gtk_menu_item_new_with_label(action.c_str());
+					gtk_widget_show(actionWidget);
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu), actionWidget);
+					g_signal_connect(G_OBJECT(actionWidget), "activate",
+						G_CALLBACK(+[](GtkMenuItem* item, Group* group) -> void {
+							g_desktop_app_info_launch_action(const_cast<GDesktopAppInfo*>(group->mAppInfo->gAppInfo),
+								gtk_menu_item_get_label(item), nullptr);
+						}),
+						group);
+				}
+				// GtkWidget* actionsMenuItem = gtk_menu_item_new_with_label(N_("Extra Actions"));
+				// gtk_menu_item_set_submenu(GTK_MENU_ITEM(actionsMenuItem), actionsMenu);
+				// gtk_menu_shell_append(GTK_MENU_SHELL(menu), actionsMenuItem);
+			}
+
+
 			return menu;
 		}
 		return nullptr;
