@@ -1,9 +1,9 @@
 TODO :
 
 + i18n
-+ Support for special launcher like mailwatch, places, music player (via MPRIS), ...
-+ Show only windows from active monitor or screen
-+ Proper scroll support
++ Support for special launcher like mailwatch, places, music player (via
+MPRIS), ...
++ Right side dock window list close button need to switch sides
 
 Exotics windows :
 - Libreoffice / Openoffice (imply changing the group of a window)
@@ -22,3 +22,5 @@ DONE :
 > + Launcher settings UI
 > + Show only windows from active workspace
 > + Orientation
+> + Proper scroll support
+> + Show only windows from active monitor or screen
