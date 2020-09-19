@@ -100,7 +100,8 @@ GroupMenuItem::GroupMenuItem(GroupWindow* groupWindow)
 
 GroupMenuItem::~GroupMenuItem()
 {
-	gtk_widget_destroy(GTK_WIDGET(mItem));
+	if(GTK_WIDGET(mItem))
+		gtk_widget_destroy(GTK_WIDGET(mItem));
 }
 
 void GroupMenuItem::updateLabel()
