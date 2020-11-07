@@ -1,6 +1,5 @@
 TODO :
 
-+ i18n
 + Support for special launcher like mailwatch, places, music player (via
 MPRIS), ...
 + Right side dock window list close button need to switch sides
@@ -24,3 +23,4 @@ DONE :
 > + Orientation
 > + Proper scroll support
 > + Show only windows from active monitor or screen
+> + i18n
