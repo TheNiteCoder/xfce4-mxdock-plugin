@@ -271,6 +271,14 @@ void Group::activate(guint32 timestamp)
 
 	GroupWindow* groupWindow = mTopWindow;
 
+	if (groupWindow == nullptr)
+	{
+		electNewTopWindow();
+		if (mTopWindow == nullptr)
+			return;
+		groupWindow = mTopWindow;
+	}
+
 	// 	mWindows.forEach([&timestamp, &groupWindow](GroupWindow* w) -> void {
 	// 		if (w != groupWindow)
 	// 			w->activate(timestamp);
@@ -776,6 +784,7 @@ void Group::electNewTopWindow()
 		GroupWindow* newTopWindow = nullptr;
 
 		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](GroupWindow* groupWindow) {
+			g_assert(groupWindow != nullptr);
 			return windowMeetsCriteria(groupWindow) && groupWindow->mGroup == this;
 		});
 
