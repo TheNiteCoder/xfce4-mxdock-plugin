@@ -37,3 +37,4 @@ src/_gresources.c
 config.h.in*
 m4/
 src/mxdock.desktop
+configure.ac
