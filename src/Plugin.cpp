@@ -13,6 +13,8 @@ namespace Plugin
 
 	void init(XfcePanelPlugin* xfPlugin)
 	{
+		xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, NULL);
+
 		mXfPlugin = xfPlugin;
 
 		GdkDisplay* display = gdk_display_get_default();

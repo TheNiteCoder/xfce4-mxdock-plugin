@@ -88,3 +88,6 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Vertical Bar Status is Enabled */
+#undef VERTICAL_BAR_ENABLED

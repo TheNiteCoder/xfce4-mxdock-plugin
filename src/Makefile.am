@@ -10,7 +10,6 @@
 plugindir = $(libdir)/xfce4/panel-plugins
 plugin_LTLIBRARIES = libmxdock.la
 
-CLEANFILES = _gresources.c
 
 # List of source files needed to build the library
 libmxdock_la_SOURCES = \
@@ -50,6 +49,12 @@ libmxdock_la_LIBADD = \
 _gresources.c: _gresources.xml _dialogs.xml
 	glib-compile-resources --generate-source --target _gresources.c _gresources.xml
 
+pluginsdir = $(datadir)/xfce4/panel/plugins
+plugins_in_files = mxdock.desktop.in
+plugins_DATA = $(plugins_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
+
+EXTRA_DIST = $(plugins_in_files)
 
 # Recently (>=2017) dependent libraries seem to require building with
 # the C++11 standard (see https://bugzilla.xfce.org/show_bug.cgi?id=13717)
@@ -58,3 +63,6 @@ _gresources.c: _gresources.xml _dialogs.xml
 # presumably when 2020 comes around I can consider addition of the std
 # flag deprecated
 AM_CXXFLAGS = -DWNCK_I_KNOW_THIS_IS_UNSTABLE $(GTK_CFLAGS) $(CAIRO_CFLAGS) $(WNCK_CFLAGS) $(SENSORS_CFLAGS) --std=c++11 -DPACKAGE_LOCALE_DIR=\"$(localedir)\"
+
+CLEANFILES = _gresources.c
+DISTCLEANFILES = $(NULL)

@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-07 12:21-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/Wnck.cpp:204
+msgid "Launch another"
+msgstr ""
+
+#: ../src/Wnck.cpp:204
+msgid "Launch"
+msgstr ""
+
+#: ../src/Wnck.cpp:219
+msgid "Unpin"
+msgstr ""
+
+#: ../src/Wnck.cpp:219
+msgid "Pin"
+msgstr ""
+
+#: ../src/Wnck.cpp:239
+msgid "Close All"
+msgstr ""
+
+#. namespace SettingsDialog
+#: ../src/mxdock.desktop.in.h:1
+msgid "A minimalist, dock-style dock"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:1
+msgid "_Close"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:2
+msgid "Don't show list for a single window"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:3
+msgid "Show only windows on current workspace"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:4
+msgid "Show only windows on current monitor"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:5
+msgid "Behavior"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:6
+msgid "Bars"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:7
+msgid "Dots"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:8
+msgid "Reverse Indicator Side"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:9
+msgid "Indicator Style:"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:10
+msgid "Indicator Color:"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:11
+msgid "Force icons size :"
+msgstr ""
+
+#: ../src/_dialogs.xml.h:12
+msgid "Appearence"
+msgstr ""
