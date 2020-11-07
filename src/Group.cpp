@@ -387,7 +387,6 @@ void Group::onDraw(cairo_t* cr)
 			else
 				cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
-#ifdef VERTICAL_BAR_ENABLED
 			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
 				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			{
@@ -407,12 +406,9 @@ void Group::onDraw(cairo_t* cr)
 			{
 				cairo_rectangle(cr, 0, h * 0.9231, w, h);
 			}
-#else
-			cairo_rectangle(cr, 0, h * 0.9231, w, h);
-#endif
+
 			cairo_fill(cr);
 
-#ifdef VERTICAL_BAR_ENABLED
 			// handle having an extra blip if there are serveral windows in group
 			//if (mSMany && (mSOpened || mSHover))
 			//{
@@ -429,12 +425,10 @@ void Group::onDraw(cairo_t* cr)
 			//cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
 			//cairo_fill(cr);
 			//}
-#endif
 		}
 
 		if (mSMany && (mSOpened || mSHover))
 		{
-#ifdef VERTICAL_BAR_ENABLED
 			int x1, x2;
 			cairo_pattern_t* pat;
 			if ((mDockPosition == DockPosition::Right) ||
@@ -450,10 +444,6 @@ void Group::onDraw(cairo_t* cr)
 				x2 = w;
 				pat = cairo_pattern_create_linear(x1, 0, x2, 0);
 			}
-#else
-			int x1 = (int)w * 0.88;
-			cairo_pattern_t* pat = cairo_pattern_create_linear(x1, 0, w, 0);
-#endif
 
 			if ((mDockPosition == DockPosition::Right) ||
 				(mDockPosition == DockPosition::Left))
@@ -471,7 +461,6 @@ void Group::onDraw(cairo_t* cr)
 
 			if (aBack > 0) // if hovering or active
 			{
-#ifdef VERTICAL_BAR_ENABLED
 				if ((mDockPosition == DockPosition::Right) ||
 					(mDockPosition == DockPosition::Left))
 				{
@@ -481,13 +470,9 @@ void Group::onDraw(cairo_t* cr)
 				{
 					cairo_rectangle(cr, x1, 0, x2, h);
 				}
-#else
-				cairo_rectangle(cr, x1, 0, w, h);
-#endif
 			}
 			else // if not hovering or active
 			{
-#ifdef VERTICAL_BAR_ENABLED
 				if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
 					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && Settings::reverseIndicatorSide))
 				{
@@ -512,9 +497,6 @@ void Group::onDraw(cairo_t* cr)
 				//{
 				//cairo_rectangle(cr, x1, 0, x2, h);
 				//}
-#else
-				cairo_rectangle(cr, x1, h * 0.9231, w, h);
-#endif
 			}
 			//cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.45);
 			//cairo_pattern_add_color_stop_rgba(pat, 0.1, 0, 0, 0, 0.35);
@@ -536,7 +518,6 @@ void Group::onDraw(cairo_t* cr)
 		if (mSOpened)
 		{
 			double dotRadius = std::max(h * (0.093), 2.);
-#ifdef VERTICAL_BAR_ENABLED
 			double epos;
 			if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
 				(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
@@ -550,9 +531,6 @@ void Group::onDraw(cairo_t* cr)
 				epos = h * 0.01;
 			else
 				epos = h * 0.99;
-#else
-			double ypos = h * 0.99;
-#endif
 
 			double rgb[3] = {0, 1, 2};
 
@@ -571,7 +549,6 @@ void Group::onDraw(cairo_t* cr)
 
 			if (mSMany)
 			{
-#ifdef VERTICAL_BAR_ENABLED
 				double pos;
 				if (mDockPosition == DockPosition::Right ||
 					mDockPosition == DockPosition::Left)
@@ -582,11 +559,7 @@ void Group::onDraw(cairo_t* cr)
 				{
 					pos = (w / 2.) - dotRadius * 1;
 				}
-#else
-				double cx = (w / 2.) - dotRadius * 1;
-#endif
 
-#ifdef VERTICAL_BAR_ENABLED
 				double x, y;
 				if (mDockPosition == DockPosition::Left ||
 					mDockPosition == DockPosition::Right)
@@ -600,24 +573,16 @@ void Group::onDraw(cairo_t* cr)
 					y = epos;
 				}
 				cairo_pattern_t* pat = cairo_pattern_create_radial(x, y, 0, x, y, dotRadius);
-#else
-				cairo_pattern_t* pat = cairo_pattern_create_radial(cx, ypos, 0, cx, ypos, dotRadius);
-#endif
 
 				cairo_pattern_add_color_stop_rgba(pat, 0.3, rgb[0], rgb[1], rgb[2], 1);
 				cairo_pattern_add_color_stop_rgba(pat, 1, rgb[0], rgb[1], rgb[2], 0.15);
 				cairo_set_source(cr, pat);
 
-#ifdef VERTICAL_BAR_ENABLED
 				cairo_arc(cr, x, y, dotRadius, 0.0, 2.0 * M_PI);
-#else
-				cairo_arc(cr, cx, ypos, dotRadius, 0.0, 2.0 * M_PI);
-#endif
 				cairo_fill(cr);
 
 				cairo_pattern_destroy(pat);
 
-#ifdef VERTICAL_BAR_ENABLED
 				if (mDockPosition == DockPosition::Right ||
 					mDockPosition == DockPosition::Left)
 				{
@@ -627,11 +592,7 @@ void Group::onDraw(cairo_t* cr)
 				{
 					pos = (w / 2.) + dotRadius * 1;
 				}
-#else
-				cx = (w / 2.) + dotRadius * 1;
-#endif
 
-#ifdef VERTICAL_BAR_ENABLED
 				if (mDockPosition == DockPosition::Left ||
 					mDockPosition == DockPosition::Right)
 				{
@@ -644,18 +605,11 @@ void Group::onDraw(cairo_t* cr)
 					y = epos;
 				}
 				pat = cairo_pattern_create_radial(x, y, 0, x, y, dotRadius);
-#else
-				pat = cairo_pattern_create_radial(cx, ypos, 0, cx, ypos, dotRadius);
-#endif
 				cairo_pattern_add_color_stop_rgba(pat, 0.3, rgb[0], rgb[1], rgb[2], 1);
 				cairo_pattern_add_color_stop_rgba(pat, 1, rgb[0], rgb[1], rgb[2], 0.15);
 				cairo_set_source(cr, pat);
 
-#ifdef VERTICAL_BAR_ENABLED
 				cairo_arc(cr, x, y, dotRadius, 0.0, 2.0 * M_PI);
-#else
-				cairo_arc(cr, cx, ypos, dotRadius, 0.0, 2.0 * M_PI);
-#endif
 
 				cairo_fill(cr);
 
@@ -663,7 +617,6 @@ void Group::onDraw(cairo_t* cr)
 			}
 			else
 			{
-#ifdef VERTICAL_BAR_ENABLED
 				double pos;
 				if (mDockPosition == DockPosition::Right ||
 					mDockPosition == DockPosition::Left)
@@ -674,11 +627,7 @@ void Group::onDraw(cairo_t* cr)
 				{
 					pos = w / 2.;
 				}
-#else
-				double cx = w / 2.;
-#endif
 
-#ifdef VERTICAL_BAR_ENABLED
 				double x, y;
 				if (mDockPosition == DockPosition::Left ||
 					mDockPosition == DockPosition::Right)
@@ -692,18 +641,11 @@ void Group::onDraw(cairo_t* cr)
 					y = epos;
 				}
 				cairo_pattern_t* pat = cairo_pattern_create_radial(x, y, 0, x, y, dotRadius);
-#else
-				cairo_pattern_t* pat = cairo_pattern_create_radial(cx, ypos, 0, cx, ypos, dotRadius);
-#endif
 				cairo_pattern_add_color_stop_rgba(pat, 0.3, rgb[0], rgb[1], rgb[2], 1);
 				cairo_pattern_add_color_stop_rgba(pat, 1, rgb[0], rgb[1], rgb[2], 0.15);
 				cairo_set_source(cr, pat);
 
-#ifdef VERTICAL_BAR_ENABLED
 				cairo_arc(cr, x, y, dotRadius, 0.0, 2.0 * M_PI);
-#else
-				cairo_arc(cr, cx, ypos, dotRadius, 0.0, 2.0 * M_PI);
-#endif
 				cairo_fill(cr);
 
 				cairo_pattern_destroy(pat);
