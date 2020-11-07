@@ -44,7 +44,7 @@ class GroupWindow
 
 	bool meetsCriteria();
 
-	Group* mGroup;
+	Group* mGroup = nullptr;
 
 	// TODO disabled during upstream merge
 	bool mVisible;
@@ -53,6 +53,8 @@ class GroupWindow
 	WnckWindow* mWnckWindow;
 	GroupMenuItem* mGroupMenuItem;
 	int mWorkspaceID;
+
+	gulong mXID;
 
 	GdkRectangle mPreviousGeometry;
 

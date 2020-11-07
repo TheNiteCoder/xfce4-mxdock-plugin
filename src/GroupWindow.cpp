@@ -10,6 +10,8 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 	WnckWorkspace* workspace = wnck_window_get_workspace(mWnckWindow);
 	mWorkspaceID = wnck_workspace_get_number(workspace);
 
+	mXID = wnck_window_get_xid(mWnckWindow);
+
 	std::string groupName = Wnck::getGroupName(this); //check here for exotic group association (like libreoffice)
 	mAppInfo = AppInfos::search(groupName);
 
@@ -59,24 +61,9 @@ GroupWindow::GroupWindow(WnckWindow* wnckWindow)
 			me->mGroup->checkWindowStates();
 		}),
 		this);
-
-	// 	g_signal_connect(G_OBJECT(Wnck::mWnckScreen), "active-workspace-changed",
-	// 			G_CALLBACK(+[](WnckScreen* screen, GroupWindow* me){
-	// 				me->mGroup->mWindowsCount.updateState();
-	// 				me->mGroup->mWindowsCount.forceFeedback();
-	// 				}),
-	// 			this);
-
-	// g_signal_connect(G_OBJECT(mWnckWindow), "workspace-changed",
-	// G_CALLBACK(+[](WnckWindow* window, GroupWindow* me){
-	// me->mVisible = windowInCurrentWorkspace(window);
-	// }), this);
-	//
-}
-
-void GroupWindow::lateInit()
-{
+	std::cerr << "About to get into group" << std::endl;
 	getInGroup(Dock::prepareGroup(mAppInfo));
+	std::cerr << "Got into group" << std::endl;
 
 	//initial state
 	updateState(Wnck::getState(this));
@@ -85,6 +72,7 @@ void GroupWindow::lateInit()
 	mGroupMenuItem->updateLabel();
 
 	mGroup->mWindowsCount.updateState();
+	std::cerr << "Reached end of GroupWindow::GroupWindow" << std::endl;
 }
 
 GroupWindow::~GroupWindow()
@@ -114,7 +102,8 @@ void GroupWindow::onUnactivate()
 	Help::Gtk::cssClassRemove(GTK_WIDGET(mGroupMenuItem->mItem), const_cast<char*>("active"));
 	gtk_widget_queue_draw(GTK_WIDGET(mGroupMenuItem->mItem));
 
-	mGroup->onWindowUnactivate();
+	if (mGroup != nullptr)
+		mGroup->onWindowUnactivate();
 }
 
 bool GroupWindow::getState(WnckWindowState flagMask)

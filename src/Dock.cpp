@@ -121,7 +121,7 @@ namespace Dock
 		for (child = children; child; child = child->next)
 		{
 			GtkWidget* widget = (GtkWidget*)child->data;
-			Group* group = (Group*)g_object_get_data(G_OBJECT(widget), "group");
+			Group* group = reinterpret_cast<Group*>(g_object_get_data(G_OBJECT(widget), "group"));
 
 			if (group->mPinned)
 			{

@@ -3,6 +3,7 @@
 #include "Wnck.hpp"
 
 #include <algorithm>
+#include <list>
 
 #define RETURN_IF(b) \
 	if (b)           \
@@ -11,34 +12,16 @@
 namespace Wnck
 {
 
-	WindowInfo::WindowInfo(WnckWindow* wnckWindow)
-	{
-		mGroupWindow = new GroupWindow(wnckWindow);
-		mXID = wnck_window_get_xid(wnckWindow);
-		mVisible = true;
-	}
-
-	void WindowInfo::construct()
-	{
-		mGroupWindow->lateInit();
-	}
-
-	WindowInfo::~WindowInfo()
-	{
-		delete mGroupWindow;
-	}
-
 	WnckScreen* mWnckScreen;
-	// Store::KeyStore<gulong, GroupWindow*> mGroupWindows;
-	std::list<WindowInfo*> mWindows;
 	int mCurrentWorkspaceID;
+	std::list<GroupWindow*> mWindows;
 
 	namespace // private:
 	{
-		std::map<std::string, std::string> mGroupNameRename //ADDIT GroupName aliases
-			= {
-				{"soffice", "libreoffice"},
-				{"radium_linux.bin", "radium"},
+		//ADDIT GroupName aliases
+		std::map<std::string, std::string> mGroupNameRename = {
+			{"soffice", "libreoffice"},
+			{"radium_linux.bin", "radium"},
 		};
 
 		void groupNameTransform(std::string& groupName, WnckWindow* wnckWindow)
@@ -47,22 +30,6 @@ namespace Wnck
 			std::map<std::string, std::string>::iterator itRenamed;
 			if ((itRenamed = mGroupNameRename.find(groupName)) != mGroupNameRename.end())
 				groupName = itRenamed->second;
-
-			// LibreOffice <- needs window name tracking
-			/*BAD if(groupName == "libreoffice")
-			  {
-			  std::string winName = getName(wnckWindow);
-			  std::cout << "NAME:" << winName << std::endl;
-			  if(!winName.empty())
-			  {
-			  std::string name =
-			  Help::String::toLowercase(Help::String::getLastWord(winName)); if(name ==
-			  "calc" || name == "draw" || name == "impress" || name == "math") groupName
-			  = "libreoffice-" + name; else groupName = "libreoffice-writer";
-
-			  return;
-			  }
-			  }*/
 		}
 
 		std::string getGroupNameSys(WnckWindow* wnckWindow)
@@ -95,14 +62,12 @@ namespace Wnck
 
 				if (it < buffer + nbr)
 					return basename(it);
-			}
 
-			// fallback : return window's name
+				// fallback : return window's name
+			}
 			return wnck_window_get_name(wnckWindow);
 		}
 	} // namespace
-
-	// public:
 
 	void earlyInit()
 	{
@@ -116,20 +81,19 @@ namespace Wnck
 		// signal connection
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-opened",
 			G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow) {
-				WindowInfo* ptr = new WindowInfo(wnckWindow);
+				GroupWindow* ptr = new GroupWindow(wnckWindow);
 				mWindows.push_back(ptr);
-				ptr->construct(); // construct WindowInfo after it has been added to the array
 			}),
 			nullptr);
 
 		g_signal_connect(G_OBJECT(mWnckScreen), "window-closed",
 			G_CALLBACK(+[](WnckScreen* screen, WnckWindow* wnckWindow) {
-				auto positer = std::find_if(mWindows.begin(), mWindows.end(), [=](WindowInfo* wi) {
+				auto positer = std::find_if(mWindows.begin(), mWindows.end(), [=](GroupWindow* wi) {
 					return wi->mXID == wnck_window_get_xid(wnckWindow);
 				});
 				if (positer == mWindows.end())
 					return;
-				WindowInfo* ptr = *positer;
+				GroupWindow* ptr = *positer;
 				mWindows.erase(positer);
 				delete ptr;
 			}),
@@ -153,9 +117,9 @@ namespace Wnck
 			 window_l = window_l->next)
 		{
 			WnckWindow* wnckWindow = WNCK_WINDOW(window_l->data);
-			WindowInfo* inbetween = new WindowInfo(wnckWindow);
-			mWindows.push_back(inbetween);
-			inbetween->construct();
+			g_assert(WNCK_IS_WINDOW(wnckWindow));
+			GroupWindow* groupWindow = new GroupWindow(wnckWindow);
+			mWindows.push_back(groupWindow);
 		}
 		setActiveWindow();
 	}
@@ -202,11 +166,11 @@ namespace Wnck
 	void setActiveWindow()
 	{
 		gulong activeXID = getActiveWindowXID();
-		if (activeXID != 0)
+		if (activeXID != 0 && mWindows.size() > 0)
 		{
-			WindowInfo* info = *mWindows.begin();
-			info->mGroupWindow->onUnactivate();
-			auto iter = std::find_if(mWindows.begin(), mWindows.end(), [&activeXID](WindowInfo* wi) {
+			GroupWindow* groupWindow = *mWindows.begin();
+			groupWindow->onUnactivate();
+			auto iter = std::find_if(mWindows.begin(), mWindows.end(), [&activeXID](GroupWindow* wi) {
 				return wi->mXID == activeXID;
 			});
 			if (iter == mWindows.end())
@@ -214,27 +178,11 @@ namespace Wnck
 				std::cerr << "mxdock: failed to find an active window" << std::endl;
 				return;
 			}
-			WindowInfo* ptr = *iter;
+			GroupWindow* ptr = *iter;
 			mWindows.erase(iter);
 			mWindows.push_front(ptr);
-			ptr->mGroupWindow->onActivate();
-
-			//mGroupWindows.first()->onUnactivate();
-			//mGroupWindows.moveToStart(activeXID)->onActivate();
+			ptr->onActivate();
 		}
-	}
-
-	bool windowInCurrentWorkspace(WnckWindow* window)
-	{
-		WnckWorkspace* currentWorkspace = wnck_screen_get_active_workspace(mWnckScreen);
-		if (currentWorkspace == nullptr)
-			return true;
-		WnckWorkspace* windowWorkspace = wnck_window_get_workspace(window);
-		if (windowWorkspace == nullptr)
-			return true;
-		int currentWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(currentWorkspace));
-		int windowWorkspaceNumber = wnck_workspace_get_number(WNCK_WORKSPACE(windowWorkspace));
-		return windowWorkspaceNumber == currentWorkspaceNumber;
 	}
 
 	std::string getGroupName(GroupWindow* groupWindow)
@@ -323,7 +271,6 @@ namespace Wnck
 				// gtk_menu_item_set_submenu(GTK_MENU_ITEM(actionsMenuItem), actionsMenu);
 				// gtk_menu_shell_append(GTK_MENU_SHELL(menu), actionsMenuItem);
 			}
-
 
 			return menu;
 		}

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <math.h>
+#include <memory>
 
 #include "AppInfos.hpp"
 #include "GroupMenu.hpp"
@@ -84,8 +85,8 @@ class Group
 	bool mSHover;
 	bool mActiveBeforePressed;
 	uint mTolerablePointerDistance;
-
-	LogicalState<uint> mWindowsCount;
+	LogicalState<uint>
+		mWindowsCount;
 
 	AppInfo* mAppInfo;
 	Store::List<GroupWindow*> mWindows;

@@ -6,7 +6,7 @@
 
 #include "config.h"
 
-static GtkTargetEntry entries[1] = {{"application/docklike_group", 0, 0}};
+static GtkTargetEntry entries[1] = {{const_cast<gchar*>("application/docklike_group"), 0, 0}};
 static GtkTargetList* targetList = gtk_target_list_new(entries, 1);
 
 Group::Group(AppInfo* appInfo, bool pinned) : mGroupMenu(this)
@@ -775,8 +775,8 @@ void Group::electNewTopWindow()
 	{
 		GroupWindow* newTopWindow = nullptr;
 
-		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](Wnck::WindowInfo* info) {
-			return windowMeetsCriteria(info->mGroupWindow) && info->mGroupWindow->mGroup == this;
+		auto iter = std::find_if(Wnck::mWindows.begin(), Wnck::mWindows.end(), [this](GroupWindow* groupWindow) {
+			return windowMeetsCriteria(groupWindow) && groupWindow->mGroup == this;
 		});
 
 		if (iter == Wnck::mWindows.end())
@@ -785,8 +785,8 @@ void Group::electNewTopWindow()
 		}
 		else
 		{
-			Wnck::WindowInfo* info = *iter;
-			newTopWindow = info->mGroupWindow;
+			GroupWindow* groupWindow = *iter;
+			newTopWindow = groupWindow;
 		}
 		setTopWindow(newTopWindow);
 	}
@@ -969,14 +969,15 @@ void Group::onScroll(GdkEventScroll* event)
 			return !wi->mGroup->windowMeetsCriteria(wi) || wi->mGroup != this;
 		});
 
-		if(filtered.size() == 0) return;
+		if (filtered.size() == 0)
+			return;
 
 		auto current = std::find_if(filtered.begin(), filtered.end(), [=](GroupWindow* wi) {
 			return wi == mTopWindow;
 		});
 
 		// If failed to find top window activate first one
-		if(current == filtered.end())
+		if (current == filtered.end())
 		{
 			filtered.front()->activate(event->time);
 			setTopWindow(filtered.front());
@@ -984,7 +985,7 @@ void Group::onScroll(GdkEventScroll* event)
 
 		if (event->direction == GDK_SCROLL_UP)
 		{
-			if(++current == filtered.end())
+			if (++current == filtered.end())
 			{
 				filtered.front()->activate(event->time);
 				setTopWindow(filtered.front());
@@ -996,9 +997,9 @@ void Group::onScroll(GdkEventScroll* event)
 				setTopWindow(window);
 			}
 		}
-		else if(event->direction == GDK_SCROLL_DOWN)
+		else if (event->direction == GDK_SCROLL_DOWN)
 		{
-			if(--current == filtered.end())
+			if (--current == filtered.end())
 			{
 				filtered.back()->activate(event->time);
 				setTopWindow(filtered.back());
@@ -1010,32 +1011,6 @@ void Group::onScroll(GdkEventScroll* event)
 				setTopWindow(window);
 			}
 		}
-
-		// TODO make this work
-		//  		if(event->direction == GDK_SCROLL_UP)
-		// 		{
-		// 			std::reverse(filtered.begin(), current);
-		// 			auto closest = std::find_if(filtered.begin(), current, [this](Wnck::WindowInfo* wi){
-		// 				return wi->mGroupWindow->mGroup == this;
-		// 			});
-		// 			if(closest == current)
-		// 				return;
-		// 			Wnck::WindowInfo* wi = *closest;
-		// 			wi->mGroupWindow->activate(event->time);
-		// 			setTopWindow(wi->mGroupWindow);
-		// 		}
-		//  		else if(event->direction == GDK_SCROLL_DOWN)
-		// 		{
-		// 			if(++current == filtered.end()) return;
-		// 			auto closest = std::find_if(current, filtered.end(), [this](Wnck::WindowInfo* wi){
-		// 				return wi->mGroupWindow->mGroup == this;
-		// 			});
-		// 			if(closest == filtered.end())
-		// 				return;
-		// 			Wnck::WindowInfo* wi = *closest;
-		// 			wi->mGroupWindow->activate(event->time);
-		// 			setTopWindow(wi->mGroupWindow);
-		// 		}
 	}
 }
 

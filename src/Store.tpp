@@ -95,7 +95,7 @@ namespace Store
 			if (it != mMap.end())
 				return it->second;
 
-			return NULL;
+			return nullptr;
 		}
 
 	  private:
