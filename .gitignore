@@ -38,3 +38,4 @@ config.h.in*
 m4/
 src/mxdock.desktop
 configure.ac
+!configure.ac.in
