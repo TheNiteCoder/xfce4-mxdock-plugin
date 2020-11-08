@@ -3,10 +3,8 @@ MXDock Taskbar for XFCE and MXLinux
 
 ## Screen Shots
 
-![mxdock](https://i.imgur.com/ahIz2eU.png)
-![mxdock](https://i.imgur.com/erIEtcq.png)
-![mxdock](https://i.imgur.com/gICViWt.png)
-
+[![https://imgur.com/BpDW7yk.png](https://imgur.com/BpDW7yk.png)](https://imgur.com/BpDW7yk.png)
+[![https://imgur.com/bt8io0u.png](https://imgur.com/bt8io0u.png)](https://imgur.com/bt8io0u.png)
 
 ## Dependencies
 
