@@ -14,6 +14,7 @@ namespace Settings
 	State<bool> showOnlyWindowsInCurrentWorkspace;
 	State<bool> reverseIndicatorSide;
 	State<bool> showOnlyWindowsOnCurrentMoniter;
+	State<int> indicatorSide;
 
 	void init()
 	{
@@ -59,6 +60,15 @@ namespace Settings
 				Dock::redraw();
 			});
 
+		gint side = g_key_file_get_integer(mFile, "user", "indicatorSide", nullptr);
+		indicatorSide.setup(side,
+			[](gint side) {
+				g_key_file_set_integer(mFile, "user", "indicatorSide", side);
+				saveFile();
+
+				Dock::redraw();
+			});
+
 		noWindowsListIfSingle.setup(g_key_file_get_boolean(mFile, "user", "noWindowsListIfSingle", nullptr),
 			[](bool noWindowsListIfSingle) -> void {
 				g_key_file_set_boolean(mFile, "user", "noWindowsListIfSingle", noWindowsListIfSingle);
@@ -99,4 +109,5 @@ namespace Settings
 	{
 		g_key_file_save_to_file(mFile, mPath.c_str(), nullptr);
 	}
+
 } // namespace Settings

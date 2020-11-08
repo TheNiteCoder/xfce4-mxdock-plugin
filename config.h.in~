@@ -32,6 +32,9 @@
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
 
+/* Define if libX11 is available */
+#undef HAVE_LIBX11
+
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
@@ -91,3 +94,6 @@
 
 /* Vertical Bar Status is Enabled */
 #undef VERTICAL_BAR_ENABLED
+
+/* Define to 1 if the X Window System is missing or not being used. */
+#undef X_DISPLAY_MISSING

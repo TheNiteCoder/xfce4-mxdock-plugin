@@ -361,6 +361,40 @@ void Group::onDraw(cairo_t* cr)
 {
 	double aBack = 0.0;
 
+	DockPosition dockPosition = mDockPosition;
+	if (dockPosition == DockPosition::Floating || dockPosition == DockPosition::Empty)
+	{
+		dockPosition = DockPosition::Bottom;
+	}
+	if (Settings::indicatorSide == Settings::IndicatorSide::Left)
+	{
+		dockPosition = DockPosition::Left;
+	}
+	else if (Settings::indicatorSide == Settings::IndicatorSide::Right)
+	{
+		dockPosition = DockPosition::Right;
+	}
+	else if (Settings::indicatorSide == Settings::IndicatorSide::Top)
+	{
+		dockPosition = DockPosition::Top;
+	}
+	else if (Settings::indicatorSide == Settings::IndicatorSide::Bottom)
+	{
+		dockPosition = DockPosition::Bottom;
+	}
+
+	if (Settings::reverseIndicatorSide && Settings::indicatorSide == Settings::IndicatorSide::Automatic)
+	{
+		if (dockPosition == DockPosition::Left)
+			dockPosition = DockPosition::Right;
+		else if (dockPosition == DockPosition::Right)
+			dockPosition = DockPosition::Left;
+		else if (dockPosition == DockPosition::Bottom)
+			dockPosition = DockPosition::Top;
+		else if (dockPosition == DockPosition::Top)
+			dockPosition = DockPosition::Bottom;
+	}
+
 	if (mSHover || mSFocus)
 		aBack = 0.5;
 	if (mSHover && mSFocus)
@@ -387,22 +421,19 @@ void Group::onDraw(cairo_t* cr)
 			else
 				cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 1);
 
-			if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			if (dockPosition == DockPosition::Right)
 			{
 				cairo_rectangle(cr, w * 0.9231, 0, w, h);
 			}
-			else if (mDockPosition == DockPosition::Left ||
-				(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+			else if (dockPosition == DockPosition::Left)
 			{
 				cairo_rectangle(cr, 0, 0, w * 0.0769, h);
 			}
-			else if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
-				((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && Settings::reverseIndicatorSide))
+			else if (dockPosition == DockPosition::Top)
 			{
 				cairo_rectangle(cr, 0, 0, w, h * 0.0769);
 			}
-			else // if(mDockPosition == DockPosition::Bottom)
+			else // if(dockPosition == DockPosition::Bottom)
 			{
 				cairo_rectangle(cr, 0, h * 0.9231, w, h);
 			}
@@ -412,13 +443,13 @@ void Group::onDraw(cairo_t* cr)
 			// handle having an extra blip if there are serveral windows in group
 			//if (mSMany && (mSOpened || mSHover))
 			//{
-			//if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-			//(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			//if ((dockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
+			//(dockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
 			//{
 			//cairo_rectangle(cr, w * 0.9231, 0, w, h * 0.12);
 			//}
-			//else if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
-			//(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+			//else if ((dockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
+			//(dockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
 			//{
 			//cairo_rectangle(cr, 0, 0, w * 0.0679, h * 0.12);
 			//}
@@ -431,8 +462,8 @@ void Group::onDraw(cairo_t* cr)
 		{
 			int x1, x2;
 			cairo_pattern_t* pat;
-			if ((mDockPosition == DockPosition::Right) ||
-				(mDockPosition == DockPosition::Left))
+			if ((dockPosition == DockPosition::Right) ||
+				(dockPosition == DockPosition::Left))
 			{
 				x1 = 0;
 				x2 = (int)h * 0.12;
@@ -445,8 +476,8 @@ void Group::onDraw(cairo_t* cr)
 				pat = cairo_pattern_create_linear(x1, 0, x2, 0);
 			}
 
-			if ((mDockPosition == DockPosition::Right) ||
-				(mDockPosition == DockPosition::Left))
+			if ((dockPosition == DockPosition::Right) ||
+				(dockPosition == DockPosition::Left))
 			{
 				cairo_pattern_add_color_stop_rgba(pat, 0.7, 0, 0, 0, 0.15);
 				cairo_pattern_add_color_stop_rgba(pat, 0.8, 0, 0, 0, 0.35);
@@ -461,8 +492,8 @@ void Group::onDraw(cairo_t* cr)
 
 			if (aBack > 0) // if hovering or active
 			{
-				if ((mDockPosition == DockPosition::Right) ||
-					(mDockPosition == DockPosition::Left))
+				if ((dockPosition == DockPosition::Right) ||
+					(dockPosition == DockPosition::Left))
 				{
 					cairo_rectangle(cr, 0, x1, w, x2);
 				}
@@ -473,23 +504,19 @@ void Group::onDraw(cairo_t* cr)
 			}
 			else // if not hovering or active
 			{
-				if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
-					((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && Settings::reverseIndicatorSide))
+				if (dockPosition == DockPosition::Top)
 				{
 					cairo_rectangle(cr, x1, 0, x2, h * 0.0769);
 				}
-				else if (((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Top && Settings::reverseIndicatorSide))
+				else if (dockPosition == DockPosition::Bottom)
 				{
 					cairo_rectangle(cr, x1, h * 0.9231, x2, h);
 				}
-				else if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+				else if (dockPosition == DockPosition::Right)
 				{
 					cairo_rectangle(cr, w * 0.9231, x1, w, x2);
 				}
-				else if ((mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide) ||
-					(mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide))
+				else if (dockPosition == DockPosition::Left)
 				{
 					cairo_rectangle(cr, 0, x1, w * 0.0769, x2);
 				}
@@ -519,15 +546,11 @@ void Group::onDraw(cairo_t* cr)
 		{
 			double dotRadius = std::max(h * (0.093), 2.);
 			double epos;
-			if ((mDockPosition == DockPosition::Left && !Settings::reverseIndicatorSide) ||
-				(mDockPosition == DockPosition::Right && Settings::reverseIndicatorSide))
+			if (dockPosition == DockPosition::Left)
 				epos = w * 0.01;
-			else if ((mDockPosition == DockPosition::Right && !Settings::reverseIndicatorSide) ||
-				(mDockPosition == DockPosition::Left && Settings::reverseIndicatorSide))
+			else if (dockPosition == DockPosition::Right)
 				epos = w * 0.99;
-			else if ((mDockPosition == DockPosition::Top && !Settings::reverseIndicatorSide) ||
-				((mDockPosition == DockPosition::Bottom || mDockPosition == DockPosition::Floating) &&
-					Settings::reverseIndicatorSide))
+			else if (dockPosition == DockPosition::Top)
 				epos = h * 0.01;
 			else
 				epos = h * 0.99;
@@ -550,8 +573,8 @@ void Group::onDraw(cairo_t* cr)
 			if (mSMany)
 			{
 				double pos;
-				if (mDockPosition == DockPosition::Right ||
-					mDockPosition == DockPosition::Left)
+				if (dockPosition == DockPosition::Right ||
+					dockPosition == DockPosition::Left)
 				{
 					pos = (h / 2.) - dotRadius * 1;
 				}
@@ -561,8 +584,8 @@ void Group::onDraw(cairo_t* cr)
 				}
 
 				double x, y;
-				if (mDockPosition == DockPosition::Left ||
-					mDockPosition == DockPosition::Right)
+				if (dockPosition == DockPosition::Left ||
+					dockPosition == DockPosition::Right)
 				{
 					x = epos;
 					y = pos;
@@ -583,8 +606,8 @@ void Group::onDraw(cairo_t* cr)
 
 				cairo_pattern_destroy(pat);
 
-				if (mDockPosition == DockPosition::Right ||
-					mDockPosition == DockPosition::Left)
+				if (dockPosition == DockPosition::Right ||
+					dockPosition == DockPosition::Left)
 				{
 					pos = (h / 2.) + dotRadius * 1;
 				}
@@ -593,8 +616,8 @@ void Group::onDraw(cairo_t* cr)
 					pos = (w / 2.) + dotRadius * 1;
 				}
 
-				if (mDockPosition == DockPosition::Left ||
-					mDockPosition == DockPosition::Right)
+				if (dockPosition == DockPosition::Left ||
+					dockPosition == DockPosition::Right)
 				{
 					x = epos;
 					y = pos;
@@ -618,8 +641,8 @@ void Group::onDraw(cairo_t* cr)
 			else
 			{
 				double pos;
-				if (mDockPosition == DockPosition::Right ||
-					mDockPosition == DockPosition::Left)
+				if (dockPosition == DockPosition::Right ||
+					dockPosition == DockPosition::Left)
 				{
 					pos = h / 2.;
 				}
@@ -629,8 +652,8 @@ void Group::onDraw(cairo_t* cr)
 				}
 
 				double x, y;
-				if (mDockPosition == DockPosition::Left ||
-					mDockPosition == DockPosition::Right)
+				if (dockPosition == DockPosition::Left ||
+					dockPosition == DockPosition::Right)
 				{
 					x = epos;
 					y = pos;

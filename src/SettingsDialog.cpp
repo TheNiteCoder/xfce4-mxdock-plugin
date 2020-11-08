@@ -31,7 +31,7 @@ namespace SettingsDialog
 
 		g_signal_connect(dialog, "response",
 			G_CALLBACK(+[](GtkDialog* dialog, gint response_id) {
-				if(response_id == GTK_RESPONSE_DELETE_EVENT)
+				if (response_id == GTK_RESPONSE_DELETE_EVENT)
 					xfce_panel_plugin_unblock_menu(Plugin::mXfPlugin);
 			}),
 			nullptr);
@@ -58,6 +58,15 @@ namespace SettingsDialog
 		g_signal_connect(indicatorStyle, "changed",
 			G_CALLBACK(+[](GtkComboBox* indicatorStyle) {
 				Settings::indicatorStyle.set(gtk_combo_box_get_active(GTK_COMBO_BOX(indicatorStyle)));
+			}),
+			nullptr);
+
+		GObject* indicatorSide = gtk_builder_get_object(builder, "co_indicatorSide");
+		gint side = Settings::indicatorSide;
+		gtk_combo_box_set_active(GTK_COMBO_BOX(indicatorSide), side);
+		g_signal_connect(indicatorSide, "changed",
+			G_CALLBACK(+[](GtkComboBox* indicatorSide) {
+				Settings::indicatorSide.set(gtk_combo_box_get_active(GTK_COMBO_BOX(indicatorSide)));
 			}),
 			nullptr);
 

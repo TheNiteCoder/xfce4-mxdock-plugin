@@ -19,6 +19,15 @@ namespace Settings
 
 	void saveFile();
 
+	enum IndicatorSide
+	{
+		Automatic,
+		Top,
+		Bottom,
+		Left,
+		Right
+	};
+
 	extern State<bool> forceIconSize;
 	extern State<int> iconSize;
 	extern State<bool> noWindowsListIfSingle;
@@ -28,6 +37,7 @@ namespace Settings
 	extern State<bool> showOnlyWindowsInCurrentWorkspace;
 	extern State<bool> reverseIndicatorSide;
 	extern State<bool> showOnlyWindowsOnCurrentMoniter;
+	extern State<int> indicatorSide;
 
 }; // namespace Settings
 
